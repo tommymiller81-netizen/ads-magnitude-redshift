@@ -3,8 +3,8 @@ message: "If you use this code, please cite the accompanying paper and this soft
 title: "Magnitude-redshift data selection for DESI DR1 and SDSS: Hubble vs anti-de Sitter"
 type: software
 authors:
-  - family-names: "[FAMILY NAME]"
-    given-names: "[GIVEN NAMES]"
+  - family-names: "Miller"
+    given-names: "Thomas"
 license: MIT
 version: "1.0.0"
 repository-code: "https://github.com/tommymiller81-netizen/ads-magnitude-redshift"
