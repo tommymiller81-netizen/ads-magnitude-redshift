@@ -1,5 +1,7 @@
 # Magnitude–redshift data selection: DESI DR1 and SDSS
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23587580.svg)](https://doi.org/10.5281/zenodo.23587580)
+
 This repository reproduces the data selection, absolute-magnitude statistics and
 comparison figure in T. Miller, *Radius, redshift, rotation, and radiation: the physical anti-de Sitter metric and entropic gravity* (2026), prepared for submission to JHEP. It compares the Hubble relation
 (q₀ = 1) with the anti-de Sitter magnitude–redshift relation (eq. 21 of the paper).
@@ -73,6 +75,10 @@ The sample contains **921,571** objects (854,330 galaxies and 67,241 quasars).
 | DESI DR1 bright | anti-de Sitter | 1.39 | 3.15 | 6.30 | −0.471 |
 | SDSS legacy | Hubble | 2.25 | 6.76 | 13.0 | −3.10 |
 | SDSS legacy | anti-de Sitter | 1.38 | 3.30 | 8.51 | +0.0538 |
+
+## Citing this code
+
+Please cite the Zenodo archive: T. Miller, *Magnitude-redshift data selection for DESI DR1 and SDSS: Hubble vs anti-de Sitter*, Zenodo (2026), doi:[10.5281/zenodo.23587580](https://doi.org/10.5281/zenodo.23587580). This DOI always resolves to the latest version. Version v1.0.0 is doi:[10.5281/zenodo.23587581](https://doi.org/10.5281/zenodo.23587581).
 
 ## Data credits
 
