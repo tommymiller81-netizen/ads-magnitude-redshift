@@ -78,10 +78,10 @@ The sample contains **921,571** objects (854,330 galaxies and 67,241 quasars).
 | SDSS-I/II | Hubble | 2.3 | 6.8 | 13.0 | −3.1 |
 | SDSS-I/II | apparent m_r (baseline) | 2.1 | 4.7 | 8.6 | +1.9 |
 
-Both surveys select targets by apparent magnitude, so the spread of m_r is the baseline for the spread of M.
+Both surveys select targets by apparent magnitude, so the spread of m_r provides a reference for the spread of M.
 For DESI, `desi_bright_selection.py` also prints the Hubble statistics for q₀ = 0.5 (2.0/4.6/12.0 mag)
-and flat ΛCDM with Ωm = 0.3 (2.2/4.9/12.7 mag): smaller q₀ widens the Hubble distribution, so q₀ = 1 is the
-comparison most favorable to Hubble.
+and flat ΛCDM with Ωm = 0.3 (2.2/4.9/12.7 mag): smaller q₀ widens the Hubble distribution; of the cases considered,
+q₀ = 1 gives the narrowest.
 
 ### Redshift-failure test (optional)
 
