@@ -55,7 +55,7 @@ SPAN = 9.0                                                          # each panel
 
 def draw(panels, ylabel, out, invert=True, ylim=None, xarr=None, xarr_lo=None, figsize=(5.85, 3.3), cbar_y=-0.205,
          label_at="top"):
-    """panels: list of dicts with keys lz, v, isQ, title, xl (log z of the slope label).
+    """panels: list of dicts with keys lz, v, isQ, title, xl (log z of a slope label along the line, or ("top", d)), ylim (optional).
     invert=True puts brighter (smaller) magnitudes at the top, the convention for absolute magnitude;
     invert=False is the classic Hubble-diagram orientation for apparent magnitude (fainter upward)."""
     ap = dict(arrowstyle="-|>,head_length=0.5,head_width=0.25", lw=1.4, color=DIMC, shrinkA=0, shrinkB=0, mutation_scale=10)
@@ -133,8 +133,10 @@ def draw(panels, ylabel, out, invert=True, ylim=None, xarr=None, xarr_lo=None, f
     # layout is final so it matches the drawn line.
     fig.canvas.draw()
     for ax, P, (sl, ic) in zip(axs, panels, fits):
-        if isinstance(P["xl"], tuple):                           # ("centre", y): horizontal label, centred, bottom at y
-            ax.text(0.5, P["xl"][1], f"slope = {sgn(sl)}", transform=ax.get_yaxis_transform(),
+        if isinstance(P["xl"], tuple):                           # ("top", d): horizontal label, centred, bottom d mag below the top edge
+            top = ax.get_ylim()[1]                                # value at the upper edge (inverted or not)
+            yl = top + P["xl"][1] if invert else top - P["xl"][1]
+            ax.text(0.5, yl, f"slope = {sgn(sl)}", transform=ax.get_yaxis_transform(),
                     ha="center", va="bottom", fontsize=8, zorder=7)
             continue
         xl = P["xl"]; yl = ic + sl*xl; side = P.get("side", 1)   # +1: label above the line, -1: below
@@ -172,29 +174,28 @@ def main(desi="desi_dr1_main_bright_sample.csv.gz", sdss="sdss_legacy_sample.csv
     vA = m - 2.5*np.log10(1 - (1 + z)**-2) - 55.3; vH = m - 5*lz - 43.0
     # y-ranges of the DESI panels (median +/- SPAN); the SDSS figure uses the same ranges
     yl_A = (np.median(vA) - SPAN, np.median(vA) + SPAN); yl_H = (np.median(vH) - SPAN, np.median(vH) + SPAN)
-    draw([dict(lz=lz, v=m - 2.5*np.log10(1 - (1 + z)**-2) - 55.3, isQ=isQ, xl=-1.90,
+    draw([dict(lz=lz, v=m - 2.5*np.log10(1 - (1 + z)**-2) - 55.3, isQ=isQ, xl=XL_TOP,
                title=r"Anti-de Sitter ($C_{\rm AdS} = -55.3$)"),
-          dict(lz=lz, v=m - 5*lz - 43.0, isQ=isQ, xl=-1.30, title=r"Hubble ($C_{\rm H} = -43.0$)")],
+          dict(lz=lz, v=m - 5*lz - 43.0, isQ=isQ, xl=XL_TOP, title=r"Hubble ($C_{\rm H} = -43.0$)")],
          "Absolute magnitude", "desi_bright_hubble_vs_ads")
     if os.path.exists(sdss):
         zs, ms, isQs = load_sdss(sdss); lzs = np.log10(zs)
         # same layout, scale and y-ranges as the DESI figure, for the SDSS sample
-        draw([dict(lz=lzs, v=ms - 2.5*np.log10(1 - (1 + zs)**-2) - 55.3, isQ=isQs, xl=XL_SDSS[0], side=1,
+        draw([dict(lz=lzs, v=ms - 2.5*np.log10(1 - (1 + zs)**-2) - 55.3, isQ=isQs, xl=XL_TOP,
                    ylim=yl_A, title=r"Anti-de Sitter ($C_{\rm AdS} = -55.3$)"),
-              dict(lz=lzs, v=ms - 5*lzs - 43.0, isQ=isQs, xl=XL_SDSS[1], side=1, ylim=yl_H,
+              dict(lz=lzs, v=ms - 5*lzs - 43.0, isQ=isQs, xl=XL_TOP, ylim=yl_H,
                    title=r"Hubble ($C_{\rm H} = -43.0$)")],
              "Absolute magnitude", "sdss_hubble_vs_ads")
         # common magnitude range for both panels; figure size chosen so the panels keep the main
         # figure's scale (1.40 dex/in, 6.80 mag/in), so slopes look equally steep in both figures
-        draw([dict(lz=np.log10(zs), v=ms, isQ=isQs, xl=XL_APP[0], side=1, title="SDSS"),
-              dict(lz=lz, v=m, isQ=isQ, xl=XL_APP[1], side=1, title="DESI")],
+        draw([dict(lz=np.log10(zs), v=ms, isQ=isQs, xl=XL_TOP, title="SDSS"),
+              dict(lz=lz, v=m, isQ=isQ, xl=XL_TOP, title="DESI")],
              "Apparent magnitude", "apparent_magnitude_sdss_desi", invert=False, ylim=(11.0, 26.0),
              xarr=XARR_APP, figsize=(5.818, 2.85))
     else:
         print(f"{sdss} not found: appendix figure skipped (run sdss_legacy_selection.py first)")
 
-XL_SDSS = (0.20, -1.25)   # log z of the slope labels in the SDSS figure (both above the line)
-XL_APP = (("centre", 22.35), ("centre", 22.35))   # slope labels: centred, just above the top band edges
+XL_TOP = ("top", 2.8)    # slope labels in all figures: horizontal, centred, bottom 2.8 mag (0.41 in) below the top edge
 # appendix arrows: opposing arrows share one vertical line; slightly wider spacing than the main
 # figure because the DESI band edges bunch up at the faint limit
 XARR_APP = {"99.7": -2.45, "95": -2.08, "68": -1.71}
