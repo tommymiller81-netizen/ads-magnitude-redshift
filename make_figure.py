@@ -53,11 +53,10 @@ CG, CQ, CF, DIMC = "#0072B2", "#D55E00", "#000000", "#7a5c0f"     # Okabe-Ito bl
 XARR = {"99.7": -2.40, "95": -2.14, "68": -1.88}; L = 1.1           # band-width arrows (log z positions, length in mag)
 SPAN = 9.0                                                          # each panel shows median +/- 9 mag
 
-# legend sample of the dashed fit line: handle length 2.0 x 8 pt = 16 pt; dash 5 and gap 2 (x lw 1.1 = 5.5, 2.2 pt).
-# Two whole periods would leave a 0.6-pt sliver at the right end that reads as a dot, so the pattern is offset to
-# give equal partial dashes at both ends: a + g + d + g + a = 16 pt -> a = 3.05 pt, offset = d - a (in lw units).
-_L, _d, _g = 2.0*8, 5*1.1, 2*1.1
-LEG_DASH_OFF = (_d - (_L - 2*_g - _d)/2)/1.1
+FIT_DASH_PT = (4.0, 2.0)   # user's choice (option C)
+# dash pattern of the least-squares line, in units of its line width (1.1 pt): FIT_DASH_PT dash / gap in points.
+# The legend sample is 2.0 x 8 pt = 16 pt long, which the pattern fills with whole dashes (3 x 4 + 2 x 2).
+FIT_DASH = tuple(v/1.1 for v in FIT_DASH_PT)
 
 def draw(panels, ylabel, out, invert=True, ylim=None, xarr=None, xarr_lo=None, figsize=(5.85, 3.3), cbar_y=-0.205,
          label_at="top", suptitle=None):
@@ -93,7 +92,7 @@ def draw(panels, ylabel, out, invert=True, ylim=None, xarr=None, xarr_lo=None, f
         hb = ax.hexbin(lz, v, gridsize=(110, ny), extent=(-2.6, 0.75, y0, y1), bins="log",
                        cmap="Greys", mincnt=3, linewidths=0, zorder=2); hbs.append(hb)
         sl, ic = np.polyfit(lz, v, 1); xx = np.array([-2.6, 0.75]); fits.append((sl, ic))
-        ax.plot(xx, ic + sl*xx, color=CF, lw=1.1, ls=(0, (5, 2)), zorder=4)
+        ax.plot(xx, ic + sl*xx, color=CF, lw=1.1, ls=(0, FIT_DASH), zorder=4)
         def bmed(sel, nmin):
             vv, ii = v[sel], idx[sel]
             return np.array([np.median(vv[ii == b]) if (ii == b).sum() >= nmin else np.nan for b in range(len(cen))])
@@ -123,7 +122,7 @@ def draw(panels, ylabel, out, invert=True, ylim=None, xarr=None, xarr_lo=None, f
          Patch(facecolor=BANDC[1], edgecolor=EDGEC, lw=0.4, label="central 95%"),
          Line2D([], [], color=CQ, marker="s", ms=3.0, mfc=CQ, mec=CQ, mew=0.3, lw=0.9, label="quasar median"),
          Patch(facecolor=BANDC[0], edgecolor=EDGEC, lw=0.4, label="central 99.7%"),
-         Line2D([], [], color=CF, lw=1.1, ls=(LEG_DASH_OFF, (5, 2)), label="least-squares fit")]
+         Line2D([], [], color=CF, lw=1.1, ls=(0, FIT_DASH), label="least-squares fit")]
     # ncol=3 fills column by column: row 1 = bands, row 2 = galaxy median, quasar median, LSQ fit
     fig.legend(handles=h, loc="upper center", bbox_to_anchor=(0.5, 0.0), ncol=3, fontsize=8, columnspacing=1.6)
     # horizontal color bar below the legend, outside the panel layout so the panels keep full width
