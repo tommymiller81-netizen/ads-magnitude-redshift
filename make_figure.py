@@ -68,9 +68,6 @@ def main(path="desi_dr1_main_bright_sample.csv.gz"):
             vv, ii = v[sel], idx[sel]
             return np.array([np.median(vv[ii == b]) if (ii == b).sum() >= nmin else np.nan for b in range(len(cen))])
         medG, medQ = bmed(~isQ, NMIN_G), bmed(isQ, NMIN_Q)
-        # overall median: every bin in which a galaxy or a quasar median is shown
-        medA = np.where(np.isfinite(medG) | np.isfinite(medQ), bmed(np.ones_like(isQ), 1), np.nan)
-        ax.plot(cen, medA, "D-", color="black", ms=4.8, lw=1.6, zorder=4.5)
         ax.plot(cen, medQ, "-", color=cQ, lw=0.9, zorder=5)
         ax.plot(cen, medQ, ls="none", marker="s", mfc=cQ, mec=cQ, mew=0.3, ms=3.0, zorder=5)
         ax.plot(cen, medG, "o-", color=cG, ms=2.6, lw=1.1, zorder=6)
@@ -90,12 +87,10 @@ def main(path="desi_dr1_main_bright_sample.csv.gz"):
          Patch(facecolor=bandcols[1], edgecolor=edgec, lw=0.4, label="central 95%"),
          Line2D([], [], color=cQ, marker="s", ms=3.0, mfc=cQ, mec=cQ, mew=0.3, lw=0.9, label="quasar median"),
          Patch(facecolor=bandcols[0], edgecolor=edgec, lw=0.4, label="central 99.7%"),
-         Line2D([], [], color=cF, lw=1.1, ls=(0, (5, 2)), label="least-squares fit"),
-         Line2D([], [], color="black", marker="D", ms=4.8, lw=1.6, label="overall median")]
-    blank = Line2D([], [], linestyle="None", label=" ")
-    # ncol=4 fills column by column: row 1 = bands, row 2 = galaxy, quasar, overall medians and LSQ fit
-    fig.legend(handles=[h[0], h[1], h[2], h[3], h[4], h[6], blank, h[5]], loc="upper center",
-               bbox_to_anchor=(0.5, 0.0), ncol=4, fontsize=8, columnspacing=1.6)
+         Line2D([], [], color=cF, lw=1.1, ls=(0, (5, 2)), label="least-squares fit")]
+        # ncol=3 fills column by column: row 1 = bands, row 2 = galaxy median, quasar median, LSQ fit
+    fig.legend(handles=h, loc="upper center",
+               bbox_to_anchor=(0.5, 0.0), ncol=3, fontsize=8, columnspacing=1.6)
     # horizontal colour bar below the legend, outside the panel layout so the panels keep full width
     cax = fig.add_axes([0.33, -0.205, 0.30, 0.026])
     # one colour scale for both panels (identical cell size: same extent and gridsize)

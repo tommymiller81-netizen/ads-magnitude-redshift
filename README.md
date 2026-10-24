@@ -67,7 +67,7 @@ The sample contains **921,571** objects (854,330 galaxies and 67,241 quasars).
 - Hubble (q₀ = 1): M = m_r − 5 log₁₀ z + C_H, with C_H = −43.0
 - Δ68 = P84 − P16, Δ95 = P97.5 − P2.5, Δ99.7 = P99.85 − P0.15. These use `numpy.percentile` with linear interpolation, over all objects pooled.
 - The slope is an unweighted least-squares fit of M on log₁₀ z, with no clipping.
-- Running medians in the figure use bins of 0.1 in log₁₀ z, Galaxy and quasar medians need at least 1000 galaxies and 200 quasars per bin, respectively; the median of all objects is shown in every bin where either is shown.
+- Running medians in the figure use bins of 0.1 in log₁₀ z, Galaxy and quasar medians need at least 1000 galaxies and 200 quasars per bin, respectively. The median of all objects is within 0.05 mag of the plotted class median in every bin and is not plotted.
 
 | Sample | Relation | Δ68 | Δ95 | Δ99.7 [mag] | Slope [mag/dex] |
 |---|---|---|---|---|---|
