@@ -4,11 +4,11 @@
 
 This repository reproduces the data selection, absolute-magnitude statistics and
 comparison figure in T. Miller, *Radius, redshift, rotation, and radiation: the physical anti-de Sitter metric and entropic gravity* (2026), prepared for submission to JHEP. It compares the Hubble relation
-(q₀ = 1) with the anti-de Sitter magnitude–redshift relation (eq. 21 of the paper).
+(q₀ = 1) with the anti-de Sitter magnitude–redshift relation (appendix C of the paper).
 
 | Script | Reproduces | Run time |
 |---|---|---|
-| `desi_bright_selection.py` | DESI DR1 bright-time sample and its statistics | ~10 min (`--test`: 1% slice) |
+| `desi_bright_selection.py` | DESI DR1 bright-time sample and its statistics | ~10 min (`--test`: 1% slice; `--exclude-failures`: redshift-failure test) |
 | `make_figure.py` | the comparison figure (PNG and PDF) | ~1 min |
 | `sdss_legacy_selection.py` | SDSS legacy comparison sample and its statistics | ~10 min (includes a 1.7 GB download) |
 
@@ -63,18 +63,31 @@ The sample contains **921,571** objects (854,330 galaxies and 67,241 quasars).
 ## 3. Magnitudes and statistics
 
 - m_r = 22.5 − 2.5 log₁₀(flux_r) for DESI (flux in nanomaggies, AB), and m_r = modelMag_r for SDSS. No extinction or K-correction is applied.
-- Hubble (q₀ = 1): M = m_r − 5 log₁₀ z − 43.0
-- Anti-de Sitter (eq. 21): M = m_r − 2.5 log₁₀[1 − (1+z)⁻²] − 55.3
+- Anti-de Sitter: M = m_r − 2.5 log₁₀[1 − (1+z)⁻²] + C_AdS, with C_AdS = −55.3
+- Hubble (q₀ = 1): M = m_r − 5 log₁₀ z + C_H, with C_H = −43.0
 - Δ68 = P84 − P16, Δ95 = P97.5 − P2.5, Δ99.7 = P99.85 − P0.15. These use `numpy.percentile` with linear interpolation, over all objects pooled.
 - The slope is an unweighted least-squares fit of M on log₁₀ z, with no clipping.
-- Running medians in the figure use bins of 0.1 in log₁₀ z, plotted only when a bin holds at least 1000 galaxies, or at least 200 quasars.
+- Running medians in the figure use bins of 0.1 in log₁₀ z, Galaxy and quasar medians need at least 1000 galaxies and 200 quasars per bin, respectively; the median of all objects is shown in every bin where either is shown.
 
 | Sample | Relation | Δ68 | Δ95 | Δ99.7 [mag] | Slope [mag/dex] |
 |---|---|---|---|---|---|
-| DESI DR1 bright | Hubble | 1.97 | 4.53 | 11.5 | −3.46 |
-| DESI DR1 bright | anti-de Sitter | 1.39 | 3.15 | 6.30 | −0.471 |
-| SDSS legacy | Hubble | 2.25 | 6.76 | 13.0 | −3.10 |
-| SDSS legacy | anti-de Sitter | 1.38 | 3.30 | 8.51 | +0.0538 |
+| DESI DR1 bright | anti-de Sitter | 1.4 | 3.2 | 6.3 | −0.5 |
+| DESI DR1 bright | Hubble | 2.0 | 4.5 | 11.5 | −3.5 |
+| SDSS legacy | anti-de Sitter | 1.4 | 3.3 | 8.5 | +0.1 |
+| SDSS legacy | Hubble | 2.3 | 6.8 | 13.0 | −3.1 |
+
+### Redshift-failure test (optional)
+
+`python desi_bright_selection.py --exclude-failures` also downloads `DELTACHI2` and repeats the
+statistics after removing likely redshift failures: `DELTACHI2 ≤ 40`, and objects classified as
+galaxies at z ≥ 1.6 (a pile-up below the z = 1.7 limit of the Redrock galaxy templates). This removes
+56,834 of 6,015,420 objects (0.94%). The full sample is still used for the figure; the reduced
+sample is written to `desi_dr1_main_bright_sample_nofail.csv.gz`.
+
+| DESI DR1 bright | Relation | Δ68 | Δ95 | Δ99.7 [mag] | Slope [mag/dex] |
+|---|---|---|---|---|---|
+| without likely failures | anti-de Sitter | 1.4 | 3.1 | 6.1 | −0.4 |
+| without likely failures | Hubble | 2.0 | 4.5 | 10.8 | −3.4 |
 
 ## Citing this code
 

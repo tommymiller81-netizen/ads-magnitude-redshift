@@ -63,13 +63,13 @@ def main():
     k = s[(s["sample"] != "drop") & (s.z_use > 0) & (s.modelMag_r > 0) & (s.modelMag_r < 40)]
     k.to_csv("sdss_legacy_sample.csv.gz", index=False)
     lz = np.log10(k.z_use.to_numpy()); m = k.modelMag_r.to_numpy()
-    M = {"Hubble (q0=1, C=-43.0)": m - 5*lz - 43.0,
-         "AdS (eq. 21, C=-55.3)":  m - 2.5*np.log10(1 - (1 + k.z_use.to_numpy())**-2) - 55.3}
+    M = {"anti-de Sitter (C_AdS = -55.3)": m - 2.5*np.log10(1 - (1 + k.z_use.to_numpy())**-2) - 55.3,
+         "Hubble (q0 = 1, C_H = -43.0)":   m - 5*lz - 43.0}
     print(f"N = {len(k):,}  ({(k['sample']=='GALAXY').sum():,} galaxies, {(k['sample']=='QSO').sum():,} quasars)")
     for name, v in M.items():
         p = np.percentile(v, [0.15, 2.5, 16, 84, 97.5, 99.85]); slope = np.polyfit(lz, v, 1)[0]
-        print(f"{name}: D68 = {p[3]-p[2]:#.3g}  D95 = {p[4]-p[1]:#.3g}  D99.7 = {p[5]-p[0]:#.3g} mag;"
-              f"  LSQ slope = {slope:#.3g} mag/dex")
+        print(f"{name}: D68 = {p[3]-p[2]:.1f}  D95 = {p[4]-p[1]:.1f}  D99.7 = {p[5]-p[0]:.1f} mag;"
+              f"  LSQ slope = {slope:.1f} mag/dex")
 
 if __name__ == "__main__":
     main()

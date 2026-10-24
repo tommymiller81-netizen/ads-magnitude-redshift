@@ -112,7 +112,7 @@ def main(path="desi_dr1_main_bright_sample.csv.gz"):
         sl, ic = fits[key]; xl = {"M_H": -1.40, "M_AdS": -1.98}[key]; yl = ic + sl*xl
         p1, p2 = ax.transData.transform([(xl - 0.1, ic + sl*(xl - 0.1)), (xl + 0.1, ic + sl*(xl + 0.1))])
         ang = np.arctan2(p2[1] - p1[1], p2[0] - p1[0])
-        ax.annotate(f"slope\u2002{neg(f3(sl))}", xy=(xl, yl),
+        ax.annotate(f"slope\u2002{neg(f'{sl:.1f}')}", xy=(xl, yl),
                     xytext=(-4*np.sin(ang), 4*np.cos(ang)), textcoords="offset points",
                     rotation=np.degrees(ang), rotation_mode="anchor", ha="center", va="bottom",
                     fontsize=8, zorder=7)
