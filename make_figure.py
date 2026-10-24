@@ -5,9 +5,12 @@ Reproduce the figures of the paper.
    (a) anti-de Sitter and (b) Hubble (q0 = 1).
    Input : desi_dr1_main_bright_sample.csv.gz (written by desi_bright_selection.py)
    Output: desi_bright_hubble_vs_ads.pdf/.png
-2. Appendix figure: apparent magnitude m_r against log10 z, (a) SDSS and (b) DESI.
+2. The same figure for the SDSS sample.
+   Input : sdss_legacy_sample.csv.gz (written by sdss_legacy_selection.py)
+   Output: sdss_hubble_vs_ads.pdf/.png
+3. Appendix figure: apparent magnitude m_r against log10 z, (a) SDSS and (b) DESI.
    Input : the DESI file above and sdss_legacy_sample.csv.gz (written by sdss_legacy_selection.py)
-   Output: apparent_magnitude_sdss_desi.pdf/.png  (made only if the SDSS file exists)
+   Output: apparent_magnitude_sdss_desi.pdf/.png  (2 and 3 are made only if the SDSS file exists)
 
 Every panel spans 18 mag vertically at the same physical size, so slopes can be compared
 by eye across all panels of both figures. Use the PDFs for JHEP; the PNGs are previews.
@@ -68,7 +71,17 @@ def draw(panels, ylabel, out, invert=True, ylim=None, xarr=None, xarr_lo=None, f
             ax.axhspan(p[lo], p[hi], color=c, lw=0, zorder=0)
         for y in (p[0], p[1], p[2], p[4], p[5], p[6]):
             ax.axhline(y, color=EDGEC, lw=0.4, zorder=1)
-        y0, y1 = ylim if ylim else (p[3] - SPAN, p[3] + SPAN)           # common range, or median +/- SPAN
+        if ylim:
+            y0, y1 = ylim                                               # common range for all panels
+        else:
+            # median +/- SPAN, shifted only if needed so the outer arrows (and the width label on the
+            # top arrow) stay inside the panel
+            c = p[3]; room_lab = 0.9; pad = 0.2
+            if invert:   # brighter (smaller) values at the top, fainter at the bottom
+                c = min(c, p[0] - L - room_lab + SPAN)   # top arrow and its label fit:  c - SPAN <= p0 - L - room
+                c = max(c, p[6] + L + pad - SPAN)        # bottom arrow fits:            c + SPAN >= p6 + L + pad
+            y0, y1 = c - SPAN, c + SPAN
+            P["ycentre"] = c
         ny = int(round(70*(y1 - y0)/(2*SPAN)))                             # same cell size as an 18-mag panel
         hb = ax.hexbin(lz, v, gridsize=(110, ny), extent=(-2.6, 0.75, y0, y1), bins="log",
                        cmap="Greys", mincnt=3, linewidths=0, zorder=2); hbs.append(hb)
@@ -134,6 +147,9 @@ def draw(panels, ylabel, out, invert=True, ylim=None, xarr=None, xarr_lo=None, f
     # solid frame outlines (matplotlib's default "no outline" is written as a transparent state)
     fig.patch.set_edgecolor(fig.patch.get_facecolor())
     for a in fig.axes: a.patch.set_edgecolor(a.patch.get_facecolor())   # panels and color bar
+    if all("ycentre" in P for P in panels):
+        print(f"{out}: axis centres " + ", ".join(f"{P['ycentre']:.2f}" for P in panels)
+              + f"; medians " + ", ".join(f"{np.median(P['v']):.2f}" for P in panels))
     W, H = fig.get_size_inches(); ax0 = axs[0].get_position()
     print(f"{out}: axes {ax0.width*W:.3f} x {ax0.height*H:.3f} in; "
           f"{3.35/(ax0.width*W):.3f} dex/in, {abs(np.diff(axs[0].get_ylim())[0])/(ax0.height*H):.3f} mag/in")
@@ -157,7 +173,12 @@ def main(desi="desi_dr1_main_bright_sample.csv.gz", sdss="sdss_legacy_sample.csv
           dict(lz=lz, v=m - 5*lz - 43.0, isQ=isQ, xl=-1.30, title=r"Hubble ($C_{\rm H} = -43.0$)")],
          "Absolute magnitude", "desi_bright_hubble_vs_ads")
     if os.path.exists(sdss):
-        zs, ms, isQs = load_sdss(sdss)
+        zs, ms, isQs = load_sdss(sdss); lzs = np.log10(zs)
+        # same layout and scale as the DESI figure, for the SDSS sample
+        draw([dict(lz=lzs, v=ms - 2.5*np.log10(1 - (1 + zs)**-2) - 55.3, isQ=isQs, xl=XL_SDSS[0], side=1,
+                   title=r"Anti-de Sitter ($C_{\rm AdS} = -55.3$)"),
+              dict(lz=lzs, v=ms - 5*lzs - 43.0, isQ=isQs, xl=XL_SDSS[1], side=1, title=r"Hubble ($C_{\rm H} = -43.0$)")],
+             "Absolute magnitude", "sdss_hubble_vs_ads")
         # common magnitude range for both panels; figure size chosen so the panels keep the main
         # figure's scale (1.40 dex/in, 6.80 mag/in), so slopes look equally steep in both figures
         draw([dict(lz=np.log10(zs), v=ms, isQ=isQs, xl=XL_APP[0], side=1, title="SDSS"),
@@ -167,6 +188,7 @@ def main(desi="desi_dr1_main_bright_sample.csv.gz", sdss="sdss_legacy_sample.csv
     else:
         print(f"{sdss} not found: appendix figure skipped (run sdss_legacy_selection.py first)")
 
+XL_SDSS = (0.20, -1.25)   # log z of the slope labels in the SDSS figure (both above the line)
 XL_APP = (("centre", 22.35), ("centre", 22.35))   # slope labels: centred, just above the top band edges
 # appendix arrows: opposing arrows share one vertical line; slightly wider spacing than the main
 # figure because the DESI band edges bunch up at the faint limit
