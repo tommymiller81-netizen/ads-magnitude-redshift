@@ -42,7 +42,7 @@ mpl.rcParams.update({
 f3  = lambda x: format(x, "#.3g").rstrip(".")      # 3 significant figures
 NMIN_G, NMIN_Q = 1000, 200                          # min. galaxies / quasars per bin for running medians
 neg = lambda s: s.replace("-", "\u2212")           # typographic minus
-sgn = lambda x: neg(f"{x:+.1f}") if x > 0 else neg(f"{x:.1f}")   # one decimal, explicit + for positive slopes
+sgn = lambda x: neg(f"{x:.1f}")                                  # one decimal, typographic minus, no plus sign
 
 
 BANDC = ["#fffbe6", "#fff3bf", "#ffe88a"]; EDGEC = "#dfc77d"        # opaque (no transparency layers)
@@ -119,9 +119,9 @@ def draw(panels, ylabel, out, invert=True, ylim=None, xarr=None, xarr_lo=None, f
     # layout is final so it matches the drawn line.
     fig.canvas.draw()
     for ax, P, (sl, ic) in zip(axs, panels, fits):
-        if P["xl"] == "top":                                     # horizontal label at the top centre of the panel
-            ax.text(0.5, 0.96, f"slope\u2002{sgn(sl)}", transform=ax.transAxes, ha="center", va="top",
-                    fontsize=8, zorder=7)
+        if isinstance(P["xl"], tuple):                           # ("centre", y): horizontal label, centred, bottom at y
+            ax.text(0.5, P["xl"][1], f"slope\u2002{sgn(sl)}", transform=ax.get_yaxis_transform(),
+                    ha="center", va="bottom", fontsize=8, zorder=7)
             continue
         xl = P["xl"]; yl = ic + sl*xl; side = P.get("side", 1)   # +1: label above the line, -1: below
         p1, p2 = ax.transData.transform([(xl - 0.1, ic + sl*(xl - 0.1)), (xl + 0.1, ic + sl*(xl + 0.1))])
@@ -167,7 +167,7 @@ def main(desi="desi_dr1_main_bright_sample.csv.gz", sdss="sdss_legacy_sample.csv
     else:
         print(f"{sdss} not found: appendix figure skipped (run sdss_legacy_selection.py first)")
 
-XL_APP = ("top", "top")   # slope labels in the appendix figure: top centre of each panel
+XL_APP = (("centre", 22.35), ("centre", 22.35))   # slope labels: centred, just above the top band edges
 # appendix arrows: opposing arrows share one vertical line; slightly wider spacing than the main
 # figure because the DESI band edges bunch up at the faint limit
 XARR_APP = {"99.7": -2.45, "95": -2.08, "68": -1.71}
