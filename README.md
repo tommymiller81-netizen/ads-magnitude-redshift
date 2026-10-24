@@ -98,7 +98,7 @@ sample is written to `desi_dr1_main_bright_sample_nofail.csv.gz`.
 
 ## Citing this code
 
-Please cite the Zenodo archive: T. Miller, *Magnitude-redshift data selection for DESI DR1 and SDSS: Hubble vs anti-de Sitter*, Zenodo (2026), doi:[10.5281/zenodo.23587580](https://doi.org/10.5281/zenodo.23587580). This DOI always resolves to the latest version. Version v1.0.0 is doi:[10.5281/zenodo.23587581](https://doi.org/10.5281/zenodo.23587581).
+Please cite the Zenodo archive: T. Miller, *Magnitude–redshift analysis of SDSS and DESI galaxies and quasars*, Zenodo (2026), doi:[10.5281/zenodo.23587580](https://doi.org/10.5281/zenodo.23587580). This DOI always resolves to the latest version. Version v1.0.0 is doi:[10.5281/zenodo.23587581](https://doi.org/10.5281/zenodo.23587581).
 
 ## Data credits
 

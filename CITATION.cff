@@ -1,12 +1,12 @@
 cff-version: 1.2.0
 message: "If you use this code, please cite the accompanying paper and this software."
-title: "Magnitude-redshift data selection for DESI DR1 and SDSS: Hubble vs anti-de Sitter"
+title: "Magnitude–redshift analysis of SDSS and DESI galaxies and quasars"
 type: software
 authors:
   - family-names: "Miller"
     given-names: "Thomas"
 license: MIT
-version: "1.0.0"
+version: "1.1.0"
 doi: "10.5281/zenodo.23587580"
-date-released: "2026-10-23"
+date-released: "2026-10-24"
 repository-code: "https://github.com/tommymiller81-netizen/ads-magnitude-redshift"
