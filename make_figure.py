@@ -42,7 +42,7 @@ mpl.rcParams.update({
 f3  = lambda x: format(x, "#.3g").rstrip(".")      # 3 significant figures
 NMIN_G, NMIN_Q = 1000, 200                          # min. galaxies / quasars per bin for running medians
 neg = lambda s: s.replace("-", "\u2212")           # typographic minus
-sgn = lambda x: neg(f"{x:.1f}")                                  # one decimal, typographic minus, no plus sign
+sgn = lambda x: neg(f"{x:+.1f}")                                 # one decimal, explicit sign, typographic minus
 
 
 BANDC = ["#fffbe6", "#fff3bf", "#ffe88a"]; EDGEC = "#dfc77d"        # opaque (no transparency layers)
@@ -120,13 +120,13 @@ def draw(panels, ylabel, out, invert=True, ylim=None, xarr=None, xarr_lo=None, f
     fig.canvas.draw()
     for ax, P, (sl, ic) in zip(axs, panels, fits):
         if isinstance(P["xl"], tuple):                           # ("centre", y): horizontal label, centred, bottom at y
-            ax.text(0.5, P["xl"][1], f"slope\u2002{sgn(sl)}", transform=ax.get_yaxis_transform(),
+            ax.text(0.5, P["xl"][1], f"slope = {sgn(sl)}", transform=ax.get_yaxis_transform(),
                     ha="center", va="bottom", fontsize=8, zorder=7)
             continue
         xl = P["xl"]; yl = ic + sl*xl; side = P.get("side", 1)   # +1: label above the line, -1: below
         p1, p2 = ax.transData.transform([(xl - 0.1, ic + sl*(xl - 0.1)), (xl + 0.1, ic + sl*(xl + 0.1))])
         ang = np.arctan2(p2[1] - p1[1], p2[0] - p1[0])
-        ax.annotate(f"slope\u2002{sgn(sl)}", xy=(xl, yl),
+        ax.annotate(f"slope = {sgn(sl)}", xy=(xl, yl),
                     xytext=(-4*side*np.sin(ang), 4*side*np.cos(ang)), textcoords="offset points",
                     rotation=np.degrees(ang), rotation_mode="anchor", ha="center",
                     va="bottom" if side > 0 else "top",
@@ -152,9 +152,9 @@ def load_sdss(path):
 
 def main(desi="desi_dr1_main_bright_sample.csv.gz", sdss="sdss_legacy_sample.csv.gz"):
     z, m, isQ = load_desi(desi); lz = np.log10(z)
-    draw([dict(lz=lz, v=m - 2.5*np.log10(1 - (1 + z)**-2) - 55.3, isQ=isQ, xl=-1.98,
+    draw([dict(lz=lz, v=m - 2.5*np.log10(1 - (1 + z)**-2) - 55.3, isQ=isQ, xl=-1.90,
                title=r"Anti-de Sitter ($C_{\rm AdS} = -55.3$)"),
-          dict(lz=lz, v=m - 5*lz - 43.0, isQ=isQ, xl=-1.40, title=r"Hubble ($C_{\rm H} = -43.0$)")],
+          dict(lz=lz, v=m - 5*lz - 43.0, isQ=isQ, xl=-1.30, title=r"Hubble ($C_{\rm H} = -43.0$)")],
          "Absolute magnitude", "desi_bright_hubble_vs_ads")
     if os.path.exists(sdss):
         zs, ms, isQs = load_sdss(sdss)
