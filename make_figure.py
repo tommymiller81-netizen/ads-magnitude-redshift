@@ -50,14 +50,15 @@ CG, CQ, CF, DIMC = "#0072B2", "#D55E00", "#000000", "#7a5c0f"     # Okabe-Ito bl
 XARR = {"99.7": -2.40, "95": -2.14, "68": -1.88}; L = 1.1           # band-width arrows (log z positions, length in mag)
 SPAN = 9.0                                                          # each panel shows median +/- 9 mag
 
-def draw(panels, ylabel, out, invert=True):
+def draw(panels, ylabel, out, invert=True, ylim=None, xarr=None, xarr_lo=None, figsize=(5.85, 3.3), cbar_y=-0.205):
     """panels: list of dicts with keys lz, v, isQ, title, xl (log z of the slope label).
     invert=True puts brighter (smaller) magnitudes at the top, the convention for absolute magnitude;
     invert=False is the classic Hubble-diagram orientation for apparent magnitude (fainter upward)."""
     ap = dict(arrowstyle="-|>,head_length=0.5,head_width=0.25", lw=1.4, color=DIMC, shrinkA=0, shrinkB=0, mutation_scale=10)
+    xarr = xarr or XARR; xarr_lo = xarr_lo or xarr   # x of the arrows at the band edges drawn at the top / bottom of the panel
     edges = np.arange(-2.6, 0.75, 0.1); cen = 0.5*(edges[1:] + edges[:-1])
     # drawn at the printed size: JHEP \textwidth = 0.72 x A4 width = 151 mm = 5.95 in, so include at width=\textwidth (scale ~1)
-    fig, axs = plt.subplots(1, len(panels), figsize=(5.85, 3.3), constrained_layout=True)
+    fig, axs = plt.subplots(1, len(panels), figsize=figsize, constrained_layout=True)
     hbs, fits = [], []
     for ax, P in zip(axs, panels):
         lz, v, isQ = P["lz"], P["v"], P["isQ"]; idx = np.digitize(lz, edges) - 1
@@ -66,7 +67,9 @@ def draw(panels, ylabel, out, invert=True):
             ax.axhspan(p[lo], p[hi], color=c, lw=0, zorder=0)
         for y in (p[0], p[1], p[2], p[4], p[5], p[6]):
             ax.axhline(y, color=EDGEC, lw=0.4, zorder=1)
-        hb = ax.hexbin(lz, v, gridsize=(110, 70), extent=(-2.6, 0.75, p[3] - SPAN, p[3] + SPAN), bins="log",
+        y0, y1 = ylim if ylim else (p[3] - SPAN, p[3] + SPAN)           # common range, or median +/- SPAN
+        ny = int(round(70*(y1 - y0)/(2*SPAN)))                             # same cell size as an 18-mag panel
+        hb = ax.hexbin(lz, v, gridsize=(110, ny), extent=(-2.6, 0.75, y0, y1), bins="log",
                        cmap="Greys", mincnt=3, linewidths=0, zorder=2); hbs.append(hb)
         sl, ic = np.polyfit(lz, v, 1); xx = np.array([-2.6, 0.75]); fits.append((sl, ic))
         ax.plot(xx, ic + sl*xx, color=CF, lw=1.1, ls=(0, (5, 2)), zorder=4)
@@ -78,13 +81,16 @@ def draw(panels, ylabel, out, invert=True):
         ax.plot(cen, medQ, ls="none", marker="s", mfc=CQ, mec=CQ, mew=0.3, ms=3.0, zorder=9)
         ax.plot(cen, medG, "o-", color=CG, ms=2.6, lw=1.1, zorder=10)  # medians above arrows (zorder 8)
         for lab, (lo, hi) in [("68", (2, 4)), ("95", (1, 5)), ("99.7", (0, 6))]:
-            x, ytop, ybot = XARR[lab], p[lo], p[hi]
-            ax.annotate("", xy=(x, ytop), xytext=(x, ytop - L), arrowprops=ap, zorder=8)
-            ax.annotate("", xy=(x, ybot), xytext=(x, ybot + L), arrowprops=ap, zorder=8)
-            # width label above the upper arrow (the upper band edge is ytop if inverted, ybot otherwise)
-            ax.annotate(f"{ybot - ytop:.1f}", xy=(x, ytop - L if invert else ybot + L), xytext=(0, 1.5), textcoords="offset points",
+            # e_up / e_dn: band edges that appear at the top / bottom of the panel
+            e_up, e_dn = (p[lo], p[hi]) if invert else (p[hi], p[lo])
+            s_ = -1 if invert else 1                                   # +1 if larger values plot higher
+            xu, xd = xarr[lab], xarr_lo[lab]
+            ax.annotate("", xy=(xu, e_up), xytext=(xu, e_up + s_*L), arrowprops=ap, zorder=8)   # points down
+            ax.annotate("", xy=(xd, e_dn), xytext=(xd, e_dn - s_*L), arrowprops=ap, zorder=8)   # points up
+            # width label above the upper arrow
+            ax.annotate(f"{p[hi] - p[lo]:.1f}", xy=(xu, e_up + s_*L), xytext=(0, 1.5), textcoords="offset points",
                         ha="center", va="bottom", fontsize=8, color=DIMC, zorder=8)
-        ax.set_ylim(*((p[3] + SPAN, p[3] - SPAN) if invert else (p[3] - SPAN, p[3] + SPAN))); ax.set_xlim(-2.6, 0.75); ax.yaxis.set_major_locator(MultipleLocator(2))
+        ax.set_ylim(*((y1, y0) if invert else (y0, y1))); ax.set_xlim(-2.6, 0.75); ax.yaxis.set_major_locator(MultipleLocator(2))
         ax.set_title(P["title"]); ax.set_xlabel(r"$\log_{10} z$")
         if ax is axs[0]: ax.set_ylabel(ylabel)
     h = [Patch(facecolor=BANDC[2], edgecolor=EDGEC, lw=0.4, label="central 68%"),
@@ -96,7 +102,7 @@ def draw(panels, ylabel, out, invert=True):
     # ncol=3 fills column by column: row 1 = bands, row 2 = galaxy median, quasar median, LSQ fit
     fig.legend(handles=h, loc="upper center", bbox_to_anchor=(0.5, 0.0), ncol=3, fontsize=8, columnspacing=1.6)
     # horizontal color bar below the legend, outside the panel layout so the panels keep full width
-    cax = fig.add_axes([0.33, -0.205, 0.30, 0.026])
+    cax = fig.add_axes([0.33, cbar_y, 0.30, 0.026*3.3/figsize[1]])
     # one color scale for all panels of a figure (identical cell size: same extent and gridsize)
     lo = min(h_.get_clim()[0] for h_ in hbs); hi = max(h_.get_clim()[1] for h_ in hbs)
     for h_ in hbs: h_.set_clim(lo, hi)
@@ -119,6 +125,9 @@ def draw(panels, ylabel, out, invert=True):
     # solid frame outlines (matplotlib's default "no outline" is written as a transparent state)
     fig.patch.set_edgecolor(fig.patch.get_facecolor())
     for a in fig.axes: a.patch.set_edgecolor(a.patch.get_facecolor())   # panels and color bar
+    W, H = fig.get_size_inches(); ax0 = axs[0].get_position()
+    print(f"{out}: axes {ax0.width*W:.3f} x {ax0.height*H:.3f} in; "
+          f"{3.35/(ax0.width*W):.3f} dex/in, {abs(np.diff(axs[0].get_ylim())[0])/(ax0.height*H):.3f} mag/in")
     for ext in ("png", "pdf"):
         fig.savefig(f"{out}.{ext}")
     plt.close(fig); print(f"wrote {out}.png/.pdf")
@@ -140,13 +149,20 @@ def main(desi="desi_dr1_main_bright_sample.csv.gz", sdss="sdss_legacy_sample.csv
          "Absolute magnitude", "desi_bright_hubble_vs_ads")
     if os.path.exists(sdss):
         zs, ms, isQs = load_sdss(sdss)
+        # common magnitude range for both panels; figure size chosen so the panels keep the main
+        # figure's scale (1.40 dex/in, 6.80 mag/in), so slopes look equally steep in both figures
         draw([dict(lz=np.log10(zs), v=ms, isQ=isQs, xl=XL_APP[0], side=1, title="SDSS"),
               dict(lz=lz, v=m, isQ=isQ, xl=XL_APP[1], side=1, title="DESI")],
-             "Apparent magnitude", "apparent_magnitude_sdss_desi", invert=False)
+             "Apparent magnitude", "apparent_magnitude_sdss_desi", invert=False, ylim=(11.0, 26.0),
+             xarr=XARR_APP_UP, xarr_lo=XARR_APP_DN, figsize=(5.818, 2.85))
     else:
         print(f"{sdss} not found: appendix figure skipped (run sdss_legacy_selection.py first)")
 
 XL_APP = (0.40, 0.40)     # log z of the slope labels in the appendix figure (SDSS, DESI)
+# appendix arrows: those pointing down (with the width labels) at the upper left, those pointing
+# up at the lower right, where the panels are empty
+XARR_APP_UP = {"99.7": -2.45, "95": -2.08, "68": -1.71}
+XARR_APP_DN = {"68": 0.30, "95": 0.47, "99.7": 0.64}
 
 if __name__ == "__main__":
     main(*sys.argv[1:3])
