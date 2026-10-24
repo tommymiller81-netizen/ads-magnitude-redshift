@@ -54,7 +54,7 @@ XARR = {"99.7": -2.40, "95": -2.14, "68": -1.88}; L = 1.1           # band-width
 SPAN = 9.0                                                          # each panel shows median +/- 9 mag
 
 def draw(panels, ylabel, out, invert=True, ylim=None, xarr=None, xarr_lo=None, figsize=(5.85, 3.3), cbar_y=-0.205,
-         label_at="top"):
+         label_at="top", suptitle=None):
     """panels: list of dicts with keys lz, v, isQ, title, xl (log z of a slope label along the line, or ("top", d)), ylim (optional).
     invert=True puts brighter (smaller) magnitudes at the top, the convention for absolute magnitude;
     invert=False is the classic Hubble-diagram orientation for apparent magnitude (fainter upward)."""
@@ -147,12 +147,27 @@ def draw(panels, ylabel, out, invert=True, ylim=None, xarr=None, xarr_lo=None, f
                     rotation=np.degrees(ang), rotation_mode="anchor", ha="center",
                     va="bottom" if side > 0 else "top",
                     fontsize=8, zorder=7)
+    if suptitle:
+        # figure title naming the sample; the figure is made taller by the room the title takes,
+        # so the panels keep their printed size (and the common dex/in and mag/in scale)
+        def axsize():
+            fig.canvas.draw(); b_ = axs[0].get_position()
+            return b_.width*fig.get_figwidth(), b_.height*fig.get_figheight()
+        w0, h0 = axsize()
+        fig.suptitle(suptitle, fontsize=10, fontweight="bold")
+        for _ in range(4):
+            w1, h1 = axsize()
+            fig.set_size_inches(fig.get_figwidth() + 2*(w0 - w1), fig.get_figheight() + h0 - h1)
+        fig.canvas.draw()
+        Hf = fig.get_figheight()
+        cax.set_position([0.33, cbar_y*figsize[1]/Hf, 0.30, 0.026*3.3/Hf])   # same place in inches below the panels
     # solid frame outlines (matplotlib's default "no outline" is written as a transparent state)
     fig.patch.set_edgecolor(fig.patch.get_facecolor())
     for a in fig.axes: a.patch.set_edgecolor(a.patch.get_facecolor())   # panels and color bar
     if all("ycentre" in P for P in panels):
         print(f"{out}: axis centres " + ", ".join(f"{P['ycentre']:.2f}" for P in panels)
               + f"; medians " + ", ".join(f"{np.median(P['v']):.2f}" for P in panels))
+    fig.canvas.draw()                                     # final layout, so the printed sizes are those saved
     W, H = fig.get_size_inches(); ax0 = axs[0].get_position()
     print(f"{out}: axes {ax0.width*W:.3f} x {ax0.height*H:.3f} in; "
           f"{3.35/(ax0.width*W):.3f} dex/in, {abs(np.diff(axs[0].get_ylim())[0])/(ax0.height*H):.3f} mag/in")
@@ -177,7 +192,7 @@ def main(desi="desi_dr1_main_bright_sample.csv.gz", sdss="sdss_legacy_sample.csv
     draw([dict(lz=lz, v=m - 2.5*np.log10(1 - (1 + z)**-2) - 55.3, isQ=isQ, xl=XL_TOP, ylim=yl_A,
                title=r"Anti-de Sitter ($C_{\rm AdS} = -55.3$)"),
           dict(lz=lz, v=m - 5*lz - 43.0, isQ=isQ, xl=XL_TOP, ylim=yl_H, title=r"Hubble ($C_{\rm H} = -43.0$)")],
-         "Absolute magnitude", "desi_bright_hubble_vs_ads")
+         "Absolute magnitude", "desi_bright_hubble_vs_ads", suptitle="DESI")
     if os.path.exists(sdss):
         zs, ms, isQs = load_sdss(sdss); lzs = np.log10(zs)
         # same layout, scale and y-ranges as the DESI figure, for the SDSS sample
@@ -185,13 +200,13 @@ def main(desi="desi_dr1_main_bright_sample.csv.gz", sdss="sdss_legacy_sample.csv
                    ylim=yl_A, title=r"Anti-de Sitter ($C_{\rm AdS} = -55.3$)"),
               dict(lz=lzs, v=ms - 5*lzs - 43.0, isQ=isQs, xl=XL_TOP, ylim=yl_H,
                    title=r"Hubble ($C_{\rm H} = -43.0$)")],
-             "Absolute magnitude", "sdss_hubble_vs_ads")
+             "Absolute magnitude", "sdss_hubble_vs_ads", suptitle="SDSS")
         # common magnitude range for both panels; figure size chosen so the panels keep the main
         # figure's scale (1.40 dex/in, 6.80 mag/in), so slopes look equally steep in both figures
         draw([dict(lz=np.log10(zs), v=ms, isQ=isQs, xl=XL_TOP, title="SDSS"),
               dict(lz=lz, v=m, isQ=isQ, xl=XL_TOP, title="DESI")],
              "Apparent magnitude", "apparent_magnitude_sdss_desi", invert=False, ylim=(11.0, 26.0),
-             xarr=XARR_APP, figsize=(5.818, 2.85))
+             xarr=XARR_APP, figsize=(5.798, 2.85), suptitle="Apparent magnitude")
     else:
         print(f"{sdss} not found: appendix figure skipped (run sdss_legacy_selection.py first)")
 
