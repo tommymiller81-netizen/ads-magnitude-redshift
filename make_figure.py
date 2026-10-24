@@ -71,8 +71,9 @@ def draw(panels, ylabel, out, invert=True, ylim=None, xarr=None, xarr_lo=None, f
             ax.axhspan(p[lo], p[hi], color=c, lw=0, zorder=0)
         for y in (p[0], p[1], p[2], p[4], p[5], p[6]):
             ax.axhline(y, color=EDGEC, lw=0.4, zorder=1)
-        if ylim:
-            y0, y1 = ylim                                               # common range for all panels
+        if P.get("ylim") or ylim:
+            y0, y1 = P.get("ylim") or ylim                              # fixed range for this panel / all panels
+            P["ycentre"] = 0.5*(y0 + y1)
         else:
             # median +/- SPAN, shifted only if needed so the outer arrows (and the width label on the
             # top arrow) stay inside the panel
@@ -168,16 +169,20 @@ def load_sdss(path):
 
 def main(desi="desi_dr1_main_bright_sample.csv.gz", sdss="sdss_legacy_sample.csv.gz"):
     z, m, isQ = load_desi(desi); lz = np.log10(z)
+    vA = m - 2.5*np.log10(1 - (1 + z)**-2) - 55.3; vH = m - 5*lz - 43.0
+    # y-ranges of the DESI panels (median +/- SPAN); the SDSS figure uses the same ranges
+    yl_A = (np.median(vA) - SPAN, np.median(vA) + SPAN); yl_H = (np.median(vH) - SPAN, np.median(vH) + SPAN)
     draw([dict(lz=lz, v=m - 2.5*np.log10(1 - (1 + z)**-2) - 55.3, isQ=isQ, xl=-1.90,
                title=r"Anti-de Sitter ($C_{\rm AdS} = -55.3$)"),
           dict(lz=lz, v=m - 5*lz - 43.0, isQ=isQ, xl=-1.30, title=r"Hubble ($C_{\rm H} = -43.0$)")],
          "Absolute magnitude", "desi_bright_hubble_vs_ads")
     if os.path.exists(sdss):
         zs, ms, isQs = load_sdss(sdss); lzs = np.log10(zs)
-        # same layout and scale as the DESI figure, for the SDSS sample
+        # same layout, scale and y-ranges as the DESI figure, for the SDSS sample
         draw([dict(lz=lzs, v=ms - 2.5*np.log10(1 - (1 + zs)**-2) - 55.3, isQ=isQs, xl=XL_SDSS[0], side=1,
-                   title=r"Anti-de Sitter ($C_{\rm AdS} = -55.3$)"),
-              dict(lz=lzs, v=ms - 5*lzs - 43.0, isQ=isQs, xl=XL_SDSS[1], side=1, title=r"Hubble ($C_{\rm H} = -43.0$)")],
+                   ylim=yl_A, title=r"Anti-de Sitter ($C_{\rm AdS} = -55.3$)"),
+              dict(lz=lzs, v=ms - 5*lzs - 43.0, isQ=isQs, xl=XL_SDSS[1], side=1, ylim=yl_H,
+                   title=r"Hubble ($C_{\rm H} = -43.0$)")],
              "Absolute magnitude", "sdss_hubble_vs_ads")
         # common magnitude range for both panels; figure size chosen so the panels keep the main
         # figure's scale (1.40 dex/in, 6.80 mag/in), so slopes look equally steep in both figures
