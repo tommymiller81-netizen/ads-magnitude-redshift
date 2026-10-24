@@ -25,7 +25,7 @@ All data are public, and no accounts are needed. Each script prints the sample s
 
 ## 1. DESI DR1, main survey, bright time
 
-The data are the DESI Data Release 1 redshift catalogue (DESI Collaboration 2026, AJ 171, 285; arXiv:2503.14745), with the Legacy Surveys target photometry distributed with DR1. They are queried through the NOIRLab Astro Data Lab TAP service, `https://datalab.noirlab.edu/tap` (Nikutta et al. 2020).
+The data are the DESI Data Release 1 redshift catalog (DESI Collaboration 2026, AJ 171, 285; arXiv:2503.14745), with the Legacy Surveys target photometry distributed with DR1. They are queried through the NOIRLab Astro Data Lab TAP service, `https://datalab.noirlab.edu/tap` (Nikutta et al. 2020).
 
 ```sql
 SELECT z.targetid, z.z, z.spectype, p.flux_r
@@ -39,7 +39,7 @@ WHERE z.survey = 'main' AND z.program = 'bright'
 
 | Cut | Purpose |
 |---|---|
-| `survey='main' AND program='bright'` | DESI main survey, bright-time programme |
+| `survey='main' AND program='bright'` | DESI main survey, bright-time program |
 | `zcat_primary='t'` | one best spectrum per unique target |
 | `zwarn=0` | DESI's flag for a redshift with no warnings |
 | `spectype IN ('GALAXY','QSO')` | spectral class from the DESI pipeline (stars excluded) |
@@ -51,7 +51,7 @@ No other objects are removed; known redshift outliers are kept. The sample conta
 
 **Spectra.** SDSS DR17 SkyServer (Abdurro'uf et al. 2022), `SpecObj` joined to `PhotoObj`, with `sciencePrimary = 1`, `zWarning = 0`, `z > 0`, class `GALAXY` or `QSO`, and `survey = 'sdss'`. This returns 936,278 spectra.
 
-**Quasar redshifts.** These come from the DR16Q catalogue (Lyke et al. 2020, ApJS 250, 8), file `DR16Q_v4.fits`, matched on (PLATE, MJD, FIBERID). The script checks the file's SHA-1 checksum after download.
+**Quasar redshifts.** These come from the DR16Q catalog (Lyke et al. 2020, ApJS 250, 8), file `DR16Q_v4.fits`, matched on (PLATE, MJD, FIBERID). The script checks the file's SHA-1 checksum after download.
 
 - Matched spectra are quasars, with redshift `Z` from DR16Q.
 - Unmatched `GALAXY` spectra are galaxies, with the SpecObj redshift.
@@ -81,7 +81,7 @@ The sample contains **921,571** objects (854,330 galaxies and 67,241 quasars).
 Both surveys select targets by apparent magnitude, so the spread of m_r is the baseline for the spread of M.
 For DESI, `desi_bright_selection.py` also prints the Hubble statistics for q₀ = 0.5 (2.0/4.6/12.0 mag)
 and flat ΛCDM with Ωm = 0.3 (2.2/4.9/12.7 mag): smaller q₀ widens the Hubble distribution, so q₀ = 1 is the
-comparison most favourable to Hubble.
+comparison most favorable to Hubble.
 
 ### Redshift-failure test (optional)
 

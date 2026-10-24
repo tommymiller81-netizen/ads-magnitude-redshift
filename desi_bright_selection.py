@@ -6,7 +6,7 @@ through the NOIRLab Astro Data Lab TAP service (tables desi_dr1.zpix and
 desi_dr1.photometry). No account is needed for these public tables.
 
 Selection (all applied server-side):
-  survey = 'main' AND program = 'bright'     DESI main survey, bright-time programme
+  survey = 'main' AND program = 'bright'     DESI main survey, bright-time program
   zcat_primary = 't'                         one best spectrum per TARGETID
   zwarn = 0                                  no redshift warning flags
   spectype IN ('GALAXY','QSO')               Redrock spectral class

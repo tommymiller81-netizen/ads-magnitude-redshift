@@ -91,9 +91,9 @@ def main(path="desi_dr1_main_bright_sample.csv.gz"):
         # ncol=3 fills column by column: row 1 = bands, row 2 = galaxy median, quasar median, LSQ fit
     fig.legend(handles=h, loc="upper center",
                bbox_to_anchor=(0.5, 0.0), ncol=3, fontsize=8, columnspacing=1.6)
-    # horizontal colour bar below the legend, outside the panel layout so the panels keep full width
+    # horizontal color bar below the legend, outside the panel layout so the panels keep full width
     cax = fig.add_axes([0.33, -0.205, 0.30, 0.026])
-    # one colour scale for both panels (identical cell size: same extent and gridsize)
+    # one color scale for both panels (identical cell size: same extent and gridsize)
     lo = min(h_.get_clim()[0] for h_ in hbs); hi = max(h_.get_clim()[1] for h_ in hbs)
     for h_ in hbs: h_.set_clim(lo, hi)
     cb = fig.colorbar(hbs[0], cax=cax, orientation="horizontal"); cb.set_label("objects per cell", fontsize=8)
@@ -113,7 +113,7 @@ def main(path="desi_dr1_main_bright_sample.csv.gz"):
                     fontsize=8, zorder=7)
     # solid frame outlines (matplotlib's default "no outline" is written as a transparent state)
     fig.patch.set_edgecolor(fig.patch.get_facecolor())
-    for a in fig.axes: a.patch.set_edgecolor(a.patch.get_facecolor())   # panels and colour bar
+    for a in fig.axes: a.patch.set_edgecolor(a.patch.get_facecolor())   # panels and color bar
     for ext in ("png", "pdf"):
         fig.savefig(f"desi_bright_hubble_vs_ads.{ext}")
     print("wrote desi_bright_hubble_vs_ads.png/.pdf")

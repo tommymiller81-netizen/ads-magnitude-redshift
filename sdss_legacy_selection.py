@@ -2,7 +2,7 @@
 Reproduce the SDSS legacy (SDSS-I/II) comparison sample and its statistics.
 
 Spectra and photometry: SDSS DR17 SkyServer (Abdurro'uf et al. 2022).
-Quasar redshifts:       DR16Q quasar catalogue, DR16Q_v4.fits (Lyke et al. 2020),
+Quasar redshifts:       DR16Q quasar catalog, DR16Q_v4.fits (Lyke et al. 2020),
                         downloaded from the SDSS Science Archive Server (1.7 GB).
 
 Selection:
