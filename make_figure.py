@@ -171,12 +171,12 @@ def load_sdss(path):
 
 def main(desi="desi_dr1_main_bright_sample.csv.gz", sdss="sdss_legacy_sample.csv.gz"):
     z, m, isQ = load_desi(desi); lz = np.log10(z)
-    vA = m - 2.5*np.log10(1 - (1 + z)**-2) - 55.3; vH = m - 5*lz - 43.0
-    # y-ranges of the DESI panels (median +/- SPAN); the SDSS figure uses the same ranges
-    yl_A = (np.median(vA) - SPAN, np.median(vA) + SPAN); yl_H = (np.median(vH) - SPAN, np.median(vH) + SPAN)
-    draw([dict(lz=lz, v=m - 2.5*np.log10(1 - (1 + z)**-2) - 55.3, isQ=isQ, xl=XL_TOP,
+    # y-ranges shared by the DESI and SDSS figures: 18 mag each, Hubble centred near the DESI median (-20.6),
+    # AdS offset by exactly 14 mag (a multiple of the 2-mag tick spacing) so the ticks of both panels line up
+    yl_H = (-29.5, -11.5); yl_A = (yl_H[0] - 14.0, yl_H[1] - 14.0)
+    draw([dict(lz=lz, v=m - 2.5*np.log10(1 - (1 + z)**-2) - 55.3, isQ=isQ, xl=XL_TOP, ylim=yl_A,
                title=r"Anti-de Sitter ($C_{\rm AdS} = -55.3$)"),
-          dict(lz=lz, v=m - 5*lz - 43.0, isQ=isQ, xl=XL_TOP, title=r"Hubble ($C_{\rm H} = -43.0$)")],
+          dict(lz=lz, v=m - 5*lz - 43.0, isQ=isQ, xl=XL_TOP, ylim=yl_H, title=r"Hubble ($C_{\rm H} = -43.0$)")],
          "Absolute magnitude", "desi_bright_hubble_vs_ads")
     if os.path.exists(sdss):
         zs, ms, isQs = load_sdss(sdss); lzs = np.log10(zs)
