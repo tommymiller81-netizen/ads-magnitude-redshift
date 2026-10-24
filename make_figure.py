@@ -68,9 +68,9 @@ def main(path="desi_dr1_main_bright_sample.csv.gz"):
             vv, ii = v[sel], idx[sel]
             return np.array([np.median(vv[ii == b]) if (ii == b).sum() >= nmin else np.nan for b in range(len(cen))])
         medG, medQ = bmed(~isQ, NMIN_G), bmed(isQ, NMIN_Q)
-        ax.plot(cen, medQ, "-", color=cQ, lw=0.9, zorder=5)
-        ax.plot(cen, medQ, ls="none", marker="s", mfc=cQ, mec=cQ, mew=0.3, ms=3.0, zorder=5)
-        ax.plot(cen, medG, "o-", color=cG, ms=2.6, lw=1.1, zorder=6)
+        ax.plot(cen, medQ, "-", color=cQ, lw=0.9, zorder=9)
+        ax.plot(cen, medQ, ls="none", marker="s", mfc=cQ, mec=cQ, mew=0.3, ms=3.0, zorder=9)
+        ax.plot(cen, medG, "o-", color=cG, ms=2.6, lw=1.1, zorder=10)  # medians above arrows (zorder 8)
         for lab, (lo, hi) in [("68", (2, 4)), ("95", (1, 5)), ("99.7", (0, 6))]:
             x, ytop, ybot = xarr[lab], p[lo], p[hi]
             ax.annotate("", xy=(x, ytop), xytext=(x, ytop - L), arrowprops=ap, zorder=8)
