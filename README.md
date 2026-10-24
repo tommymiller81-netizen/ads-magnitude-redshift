@@ -3,7 +3,7 @@
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23587580.svg)](https://doi.org/10.5281/zenodo.23587580)
 
 This repository reproduces the data selection, absolute-magnitude statistics and
-comparison figure in T. Miller, *Radius, redshift, rotation, and radiation: the physical anti-de Sitter metric and entropic gravity* (2026), prepared for submission to JHEP. It compares the Hubble relation
+comparison figures in T. Miller, *Radius, redshift, rotation, and radiation: the physical anti-de Sitter metric and entropic gravity* (2026), prepared for submission to JHEP. It compares the Hubble relation
 (q₀ = 1) with the anti-de Sitter magnitude–redshift relation (appendix C of the paper).
 
 | Script | Reproduces | Run time |
