@@ -119,6 +119,10 @@ def draw(panels, ylabel, out, invert=True, ylim=None, xarr=None, xarr_lo=None, f
     # layout is final so it matches the drawn line.
     fig.canvas.draw()
     for ax, P, (sl, ic) in zip(axs, panels, fits):
+        if P["xl"] == "top":                                     # horizontal label at the top centre of the panel
+            ax.text(0.5, 0.96, f"slope\u2002{sgn(sl)}", transform=ax.transAxes, ha="center", va="top",
+                    fontsize=8, zorder=7)
+            continue
         xl = P["xl"]; yl = ic + sl*xl; side = P.get("side", 1)   # +1: label above the line, -1: below
         p1, p2 = ax.transData.transform([(xl - 0.1, ic + sl*(xl - 0.1)), (xl + 0.1, ic + sl*(xl + 0.1))])
         ang = np.arctan2(p2[1] - p1[1], p2[0] - p1[0])
@@ -163,7 +167,7 @@ def main(desi="desi_dr1_main_bright_sample.csv.gz", sdss="sdss_legacy_sample.csv
     else:
         print(f"{sdss} not found: appendix figure skipped (run sdss_legacy_selection.py first)")
 
-XL_APP = (0.40, 0.40)     # log z of the slope labels in the appendix figure (SDSS, DESI)
+XL_APP = ("top", "top")   # slope labels in the appendix figure: top centre of each panel
 # appendix arrows: opposing arrows share one vertical line; slightly wider spacing than the main
 # figure because the DESI band edges bunch up at the faint limit
 XARR_APP = {"99.7": -2.45, "95": -2.08, "68": -1.71}
