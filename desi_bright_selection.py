@@ -11,7 +11,16 @@ Selection (all applied server-side):
   zwarn = 0                                  no redshift warning flags
   spectype IN ('GALAXY','QSO')               Redrock spectral class
   z > 0 AND flux_r > 0                       needed for log z and m_r
-Nothing else is removed.
+Quality cuts on galaxies (applied after download):
+  DELTACHI2 > 40                             DESI's redshift-success criterion for bright-time
+                                             galaxies (DESI Collaboration 2024, arXiv:2411.12020)
+  z < 1.5                                    robust bright-time galaxy redshifts; removes the
+                                             pile-up below the z = 1.7 limit of the Redrock
+                                             galaxy templates
+  DELTACHI2 is the chi^2 difference between the best and second-best Redrock fits.
+  Quasars are not cut (DESI uses a separate criterion for quasars). Nothing else is removed.
+  Statistics are printed before and after the cuts; the sample written to
+  desi_dr1_main_bright_sample.csv.gz (and used for the figures) is the one after the cuts.
 
 Quantities:
   m_r   = 22.5 - 2.5 log10(flux_r)          flux_r in nanomaggies (AB), no extinction
@@ -22,18 +31,8 @@ Band widths: D68 = P84 - P16, D95 = P97.5 - P2.5, D99.7 = P99.85 - P0.15
 (numpy.percentile, default linear interpolation, all objects pooled).
 Slope: ordinary least squares of M on log10 z (numpy.polyfit, degree 1).
 
-Optional redshift-failure test (--exclude-failures; appendix C of the paper):
-  also downloads DELTACHI2 (chi^2 difference between the best and second-best
-  Redrock fits) and repeats the statistics after removing
-    DELTACHI2 <= 40                            low-confidence redshifts
-    spectype = 'GALAXY' AND z >= 1.6           pile-up below the z = 1.7 limit of
-                                               the Redrock galaxy templates
-  The full sample is still written and used for the figure; the reduced sample
-  is written separately to desi_dr1_main_bright_sample_nofail.csv.gz.
-
-Usage:  python desi_bright_selection.py                      # full sample (~10 min)
-        python desi_bright_selection.py --test               # 1% slice, quick check
-        python desi_bright_selection.py --exclude-failures   # also run the failure test
+Usage:  python desi_bright_selection.py           # full sample (~10 min)
+        python desi_bright_selection.py --test    # 1% slice, quick check
 Requires: python >= 3.9, numpy, pandas, requests.
 """
 import sys, io, time, requests, numpy as np, pandas as pd
@@ -42,10 +41,7 @@ from concurrent.futures import ThreadPoolExecutor
 TAP = "https://datalab.noirlab.edu/tap/sync"
 WHERE = ("z.survey = 'main' AND z.program = 'bright' AND z.zcat_primary = 't' "
          "AND z.zwarn = 0 AND z.spectype IN ('GALAXY','QSO') AND z.z > 0 AND p.flux_r > 0")
-COLS = "z.targetid, z.z, z.spectype, p.flux_r"
-FAIL = "--exclude-failures" in sys.argv
-if FAIL:
-    COLS += ", z.deltachi2"
+COLS = "z.targetid, z.z, z.spectype, p.flux_r, z.deltachi2"
 
 def query(adql):
     for attempt in range(4):
@@ -86,17 +82,22 @@ def chunk(k):
     return query(f"SELECT {COLS} FROM desi_dr1.zpix AS z JOIN desi_dr1.photometry AS p "
                  f"ON z.targetid = p.targetid WHERE {WHERE} AND z.random_id >= {k}{hi}")
 
+def quality(d):
+    """True for objects that pass the quality cuts (galaxies: DELTACHI2 > 40 and z < 1.5; quasars: all)."""
+    gal = d.spectype == "GALAXY"
+    return ~gal | ((d.deltachi2 > 40) & (d.z < 1.5))
+
 def main():
     ks = [0] if "--test" in sys.argv else range(100)
     with ThreadPoolExecutor(4) as ex:
         d = pd.concat(list(ex.map(chunk, ks)), ignore_index=True)
-    d.to_csv("desi_dr1_main_bright_sample.csv.gz", index=False)
-    stats(d, "Full sample")
-    if FAIL:
-        bad = (d.deltachi2 <= 40) | ((d.spectype == "GALAXY") & (d.z >= 1.6))
-        print(f"Removed as likely redshift failures: {bad.sum():,} ({100*bad.mean():.2f}%)")
-        d[~bad].to_csv("desi_dr1_main_bright_sample_nofail.csv.gz", index=False)
-        stats(d[~bad], "Without likely failures")
+    stats(d, "Before quality cuts")
+    gal = d.spectype == "GALAXY"; ok = quality(d)
+    print(f"Quality cuts remove {(~ok).sum():,} galaxies ({100*(~ok).mean():.2f}%): "
+          f"{(gal & (d.deltachi2 <= 40)).sum():,} with DELTACHI2 <= 40, "
+          f"{(gal & (d.deltachi2 > 40) & (d.z >= 1.5)).sum():,} more at z >= 1.5")
+    d[ok].to_csv("desi_dr1_main_bright_sample.csv.gz", index=False)
+    stats(d[ok], "Sample (after quality cuts)")
 
 if __name__ == "__main__":
     main()

@@ -8,9 +8,9 @@ comparison figures in T. Miller, *Radius, redshift, rotation, and radiation: the
 
 | Script | Reproduces | Run time |
 |---|---|---|
-| `desi_bright_selection.py` | DESI DR1 bright-time sample and its statistics | ~10 min (`--test`: 1% slice; `--exclude-failures`: redshift-failure test) |
+| `desi_bright_selection.py` | DESI DR1 bright-time sample and its statistics | ~10 min (`--test`: 1% slice) |
 | `make_figure.py` | the main figure (absolute magnitude; rows SDSS and DESI, columns anti-de Sitter and Hubble) and the appendix figure (apparent magnitude, SDSS and DESI); PDF and PNG | ~1 min |
-| `sdss_legacy_selection.py` | SDSS-I/II comparison sample and its statistics | ~10 min (includes a 1.7 GB download; `--exclude-zero-flux`: zero-flux test) |
+| `sdss_legacy_selection.py` | SDSS-I/II comparison sample and its statistics | ~10 min (includes a 1.7 GB download) |
 
 ## Quick start
 
@@ -28,7 +28,7 @@ All data are public, and no accounts are needed. Each script prints the sample s
 The data are the DESI Data Release 1 redshift catalog (DESI Collaboration 2026, AJ 171, 285; arXiv:2503.14745), with the Legacy Surveys target photometry distributed with DR1. They are queried through the NOIRLab Astro Data Lab TAP service, `https://datalab.noirlab.edu/tap` (Nikutta et al. 2020).
 
 ```sql
-SELECT z.targetid, z.z, z.spectype, p.flux_r
+SELECT z.targetid, z.z, z.spectype, p.flux_r, z.deltachi2
 FROM desi_dr1.zpix AS z
 JOIN desi_dr1.photometry AS p ON z.targetid = p.targetid
 WHERE z.survey = 'main' AND z.program = 'bright'
@@ -45,7 +45,7 @@ WHERE z.survey = 'main' AND z.program = 'bright'
 | `spectype IN ('GALAXY','QSO')` | spectral class from the DESI pipeline (stars excluded) |
 | `z>0`, `flux_r>0` | required to compute log z and m_r |
 
-No other objects are removed; known redshift outliers are kept. The sample contains **6,015,420** objects (5,947,064 galaxies and 68,356 quasars). The script splits the query into 100 equal slices of `random_id`, a uniform random column on [0, 100), purely to keep each download small.
+The query returns 6,015,420 objects. Galaxies must also pass the quality cuts below (`DELTACHI2 > 40` and z < 1.5); no other objects are removed. The sample contains **5,958,885** objects (5,890,529 galaxies and 68,356 quasars). The script splits the query into 100 equal slices of `random_id`, a uniform random column on [0, 100), purely to keep each download small.
 
 ## 2. SDSS-I/II (comparison sample)
 
@@ -56,9 +56,9 @@ No other objects are removed; known redshift outliers are kept. The sample conta
 - Matched spectra are quasars, with redshift `Z` from DR16Q.
 - Unmatched `GALAXY` spectra are galaxies, with the SpecObj redshift.
 - Unmatched `QSO` spectra are discarded.
-- Finally, 0 < modelMag_r < 40 and redshift > 0 are required.
+- Finally, 0 < modelMag_r < 40 and redshift > 0 are required, and positive r-band flux, modelMag_r < 24.80 (quality cuts below).
 
-The sample contains **921,571** objects (854,330 galaxies and 67,241 quasars).
+The sample contains **921,067** objects (853,845 galaxies and 67,222 quasars).
 
 ## 3. Magnitudes and statistics
 
@@ -71,46 +71,31 @@ The sample contains **921,571** objects (854,330 galaxies and 67,241 quasars).
 
 | Sample | Relation | Δ68 | Δ95 | Δ99.7 [mag] | Slope [mag/dex] |
 |---|---|---|---|---|---|
-| SDSS-I/II | anti-de Sitter | 1.4 | 3.3 | 8.5 | +0.1 |
-| SDSS-I/II | Hubble | 2.3 | 6.8 | 13.0 | −3.1 |
-| SDSS-I/II | apparent m_r (baseline) | 2.1 | 4.7 | 8.6 | +1.9 |
-| DESI DR1 bright | anti-de Sitter | 1.4 | 3.2 | 6.3 | −0.5 |
-| DESI DR1 bright | Hubble | 2.0 | 4.5 | 11.5 | −3.5 |
-| DESI DR1 bright | apparent m_r (baseline) | 1.6 | 3.5 | 5.7 | +1.5 |
+| SDSS-I/II | anti-de Sitter | 1.4 | 3.3 | 7.6 | +0.1 |
+| SDSS-I/II | Hubble | 2.2 | 6.7 | 12.5 | −3.1 |
+| SDSS-I/II | apparent m_r (baseline) | 2.1 | 4.7 | 8.2 | +1.9 |
+| DESI DR1 bright | anti-de Sitter | 1.4 | 3.1 | 6.1 | −0.4 |
+| DESI DR1 bright | Hubble | 2.0 | 4.5 | 10.8 | −3.4 |
+| DESI DR1 bright | apparent m_r (baseline) | 1.6 | 3.5 | 5.7 | +1.6 |
 
 Both surveys select targets by apparent magnitude, so the spread of m_r provides a reference for the spread of M.
-For DESI, `desi_bright_selection.py` also prints the Hubble statistics for q₀ = 0.5 (2.0/4.6/12.0 mag)
-and flat ΛCDM with Ωm = 0.3 (2.2/4.9/12.7 mag): smaller q₀ widens the Hubble distribution; of the cases considered,
+For DESI, `desi_bright_selection.py` also prints the Hubble statistics for q₀ = 0.5 (2.0/4.6/11.2 mag)
+and flat ΛCDM with Ωm = 0.3 (2.2/4.8/11.9 mag): smaller q₀ widens the Hubble distribution; of the cases considered,
 q₀ = 1 gives the narrowest.
 
-### Zero-flux test, SDSS (optional)
+### Quality cuts
 
-SDSS magnitudes are asinh magnitudes (Lupton, Gunn & Szalay 1999), which stay finite at zero flux:
-in r, zero flux gives `modelMag_r` = 24.80 and negative flux gives fainter values. 504 objects
-(485 galaxies, 19 quasars) have `modelMag_r` ≥ 24.80; they form the faint diagonal sequences in the
-SDSS absolute-magnitude panels. `python sdss_legacy_selection.py --exclude-zero-flux` repeats the
-statistics without them. The full sample is still used for the figures.
+- **SDSS: positive r-band flux.** SDSS magnitudes are asinh magnitudes (Lupton, Gunn & Szalay 1999), which stay finite at zero flux: in r, zero flux gives `modelMag_r` = 24.80 and negative flux gives fainter values. Requiring `modelMag_r` < 24.80 matches the DESI condition `flux_r > 0` and removes 504 objects (485 galaxies, 19 quasars), which would otherwise form faint diagonal sequences in the SDSS absolute-magnitude panels.
+- **DESI galaxies: redshift quality.** Galaxies must satisfy DESI's redshift-success criterion for bright-time galaxies, `ZWARN = 0` and `DELTACHI2 > 40` (DESI Collaboration 2025, JCAP 07, 017), and z < 1.5 (Ratajczak et al. 2026, AJ 171, 71), which removes a pile-up below the z = 1.7 limit of the Redrock galaxy templates. Quasars are not cut. This removes 56,535 galaxies (0.94%): 51,735 with `DELTACHI2` ≤ 40 and 4,800 more at z ≥ 1.5.
 
-| SDSS-I/II | Relation | Δ68 | Δ95 | Δ99.7 [mag] | Slope [mag/dex] |
+Both selection scripts print the statistics before and after the cuts; the samples they write, and the figures, use the samples after the cuts.
+
+| Before quality cuts | Relation | Δ68 | Δ95 | Δ99.7 [mag] | Slope [mag/dex] |
 |---|---|---|---|---|---|
-| without zero-flux objects | anti-de Sitter | 1.4 | 3.3 | 7.6 | +0.1 |
-| without zero-flux objects | Hubble | 2.2 | 6.7 | 12.5 | −3.1 |
-
-The 68 and 95% widths change by at most 0.02 mag; the Hubble values above differ from the full-sample
-2.3 and 6.8 only through rounding.
-
-### Redshift-failure test, DESI (optional)
-
-`python desi_bright_selection.py --exclude-failures` also downloads `DELTACHI2` and repeats the
-statistics after removing likely redshift failures: `DELTACHI2 ≤ 40`, and objects classified as
-galaxies at z ≥ 1.6 (a pile-up below the z = 1.7 limit of the Redrock galaxy templates). This removes
-56,834 of 6,015,420 objects (0.94%). The full sample is still used for the figures; the reduced
-sample is written to `desi_dr1_main_bright_sample_nofail.csv.gz`.
-
-| DESI DR1 bright | Relation | Δ68 | Δ95 | Δ99.7 [mag] | Slope [mag/dex] |
-|---|---|---|---|---|---|
-| without likely failures | anti-de Sitter | 1.4 | 3.1 | 6.1 | −0.4 |
-| without likely failures | Hubble | 2.0 | 4.5 | 10.8 | −3.4 |
+| SDSS-I/II (921,571) | anti-de Sitter | 1.4 | 3.3 | 8.5 | +0.1 |
+| SDSS-I/II | Hubble | 2.3 | 6.8 | 13.0 | −3.1 |
+| DESI DR1 bright (6,015,420) | anti-de Sitter | 1.4 | 3.2 | 6.3 | −0.5 |
+| DESI DR1 bright | Hubble | 2.0 | 4.5 | 11.5 | −3.5 |
 
 ## Citing this code
 

@@ -12,26 +12,23 @@ Selection:
     unmatched, GALAXY    -> galaxy, redshift = SpecObj z
     unmatched, QSO       -> discarded
   Then 0 < modelMag_r < 40 and redshift > 0 (redshifts kept at full precision).
+Quality cut: positive r-band flux, modelMag_r < 24.80. SDSS magnitudes are asinh magnitudes
+  (Lupton, Gunn & Szalay 1999); in r, zero flux gives modelMag_r = 24.80 (softening
+  b_r = 1.2e-10) and negative flux gives fainter values. This matches the DESI condition
+  flux_r > 0. Statistics are printed before and after the cut; the sample written to
+  sdss_legacy_sample.csv.gz (and used for the figures) is the one after the cut.
 Quantities and statistics as in desi_bright_selection.py, with m_r = modelMag_r.
 
-Optional zero-flux test (--exclude-zero-flux; appendix C of the paper):
-  SDSS magnitudes are asinh magnitudes (Lupton, Gunn & Szalay 1999). In r, zero flux gives
-  modelMag_r = 24.80 (softening b_r = 1.2e-10) and negative flux gives fainter values. With the
-  flag, the statistics are also printed without the objects at modelMag_r >= 24.80. The saved
-  sample always contains all objects.
-
 Usage:  python sdss_legacy_selection.py
-        python sdss_legacy_selection.py --exclude-zero-flux   # also run the zero-flux test
 Requires: numpy, pandas, requests, astropy.
 """
-import io, os, sys, time, hashlib, requests, numpy as np, pandas as pd
+import io, os, time, hashlib, requests, numpy as np, pandas as pd
 from concurrent.futures import ThreadPoolExecutor
 from astropy.io import fits
 
 SKY = "https://skyserver.sdss.org/dr17/SkyServerWS/SearchTools/SqlSearch"
 DR16Q_URL = "https://data.sdss.org/sas/dr16/eboss/qso/DR16Q/DR16Q_v4.fits"
 DR16Q_SHA1 = "9c9db93f1fb23b31576dd04836ede78ff982f9cb"
-ZERO_FLUX = "--exclude-zero-flux" in sys.argv
 M0_R = -2.5/np.log(10)*np.log(1.2e-10)     # asinh r magnitude at zero flux, 24.802
 SQL = ("SELECT s.plate, s.mjd, s.fiberID, s.z, s.class, p.modelMag_r "
        "FROM SpecObj AS s JOIN PhotoObj AS p ON s.bestObjID = p.objID "
@@ -70,13 +67,13 @@ def main():
     s["sample"] = np.where(s.z16.notna(), "QSO", np.where(s["class"] == "GALAXY", "GALAXY", "drop"))
     s["z_use"] = np.where(s.z16.notna(), s.z16, s.z)
     k = s[(s["sample"] != "drop") & (s.z_use > 0) & (s.modelMag_r > 0) & (s.modelMag_r < 40)]
+    print("Before quality cut:"); report(k)
+    zf = k.modelMag_r >= M0_R - 5e-4
+    print(f"\nQuality cut removes {zf.sum():,} objects with modelMag_r >= {M0_R:.2f} (zero or negative r flux; "
+          f"{(k[zf]['sample']=='GALAXY').sum():,} galaxies, {(k[zf]['sample']=='QSO').sum():,} quasars)")
+    k = k[~zf]
     k.to_csv("sdss_legacy_sample.csv.gz", index=False)
-    report(k)
-    if ZERO_FLUX:
-        zf = k.modelMag_r >= M0_R - 5e-4
-        print(f"\nZero-flux test: removing {zf.sum():,} objects with modelMag_r >= {M0_R:.2f} "
-              f"({(k[zf]['sample']=='GALAXY').sum():,} galaxies, {(k[zf]['sample']=='QSO').sum():,} quasars)")
-        report(k[~zf])
+    print("Sample (after quality cut):"); report(k)
 
 def report(k):
     lz = np.log10(k.z_use.to_numpy()); m = k.modelMag_r.to_numpy()
