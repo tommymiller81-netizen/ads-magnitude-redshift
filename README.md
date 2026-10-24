@@ -10,7 +10,7 @@ comparison figure in T. Miller, *Radius, redshift, rotation, and radiation: the 
 |---|---|---|
 | `desi_bright_selection.py` | DESI DR1 bright-time sample and its statistics | ~10 min (`--test`: 1% slice; `--exclude-failures`: redshift-failure test) |
 | `make_figure.py` | the comparison figure (PNG and PDF) | ~1 min |
-| `sdss_legacy_selection.py` | SDSS legacy comparison sample and its statistics | ~10 min (includes a 1.7 GB download) |
+| `sdss_legacy_selection.py` | SDSS-I/II comparison sample and its statistics | ~10 min (includes a 1.7 GB download) |
 
 ## Quick start
 
@@ -47,7 +47,7 @@ WHERE z.survey = 'main' AND z.program = 'bright'
 
 No other objects are removed; known redshift outliers are kept. The sample contains **6,015,420** objects (5,947,064 galaxies and 68,356 quasars). The script splits the query into 100 equal slices of `random_id`, a uniform random column on [0, 100), purely to keep each download small.
 
-## 2. SDSS legacy (comparison sample)
+## 2. SDSS-I/II (comparison sample)
 
 **Spectra.** SDSS DR17 SkyServer (Abdurro'uf et al. 2022), `SpecObj` joined to `PhotoObj`, with `sciencePrimary = 1`, `zWarning = 0`, `z > 0`, class `GALAXY` or `QSO`, and `survey = 'sdss'`. This returns 936,278 spectra.
 
@@ -74,9 +74,9 @@ The sample contains **921,571** objects (854,330 galaxies and 67,241 quasars).
 | DESI DR1 bright | anti-de Sitter | 1.4 | 3.2 | 6.3 | −0.5 |
 | DESI DR1 bright | Hubble | 2.0 | 4.5 | 11.5 | −3.5 |
 | DESI DR1 bright | apparent m_r (baseline) | 1.6 | 3.5 | 5.7 | +1.5 |
-| SDSS legacy | anti-de Sitter | 1.4 | 3.3 | 8.5 | +0.1 |
-| SDSS legacy | Hubble | 2.3 | 6.8 | 13.0 | −3.1 |
-| SDSS legacy | apparent m_r (baseline) | 2.1 | 4.7 | 8.6 | +1.9 |
+| SDSS-I/II | anti-de Sitter | 1.4 | 3.3 | 8.5 | +0.1 |
+| SDSS-I/II | Hubble | 2.3 | 6.8 | 13.0 | −3.1 |
+| SDSS-I/II | apparent m_r (baseline) | 2.1 | 4.7 | 8.6 | +1.9 |
 
 Both surveys select targets by apparent magnitude, so the spread of m_r is the baseline for the spread of M.
 For DESI, `desi_bright_selection.py` also prints the Hubble statistics for q₀ = 0.5 (2.0/4.6/12.0 mag)
