@@ -3,6 +3,5 @@
 *.fits
 *.fits.part
 desi_bright_hubble_vs_ads.png
-desi_bright_hubble_vs_ads.pdf
 __pycache__/
 .DS_Store
