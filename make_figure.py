@@ -49,8 +49,9 @@ def main(path="desi_dr1_main_bright_sample.csv.gz"):
     med = {k: float(np.median(v)) for k, v in M.items()}; offset = med["M_AdS"] - med["M_H"]
 
     fig, axs = plt.subplots(1, 2, figsize=(7.0, 3.6), constrained_layout=True)
-    for ax, (key, title) in zip(axs, [("M_H", "Hubble (q\u2080 = 1, C = \u221243.0)"),
-                                      ("M_AdS", "Anti-de Sitter (eq. 21, C = \u221255.3)")]):
+    fits = {}
+    for ax, (key, title) in zip(axs, [("M_H", r"Hubble ($C_{\rm H} = -43.0$)"),
+                                      ("M_AdS", r"Anti-de Sitter ($C_{\rm DS} = -55.3$)")]):
         v = M[key]; p = np.percentile(v, [0.15, 2.5, 16, 50, 84, 97.5, 99.85])
         for (lo, hi), c in zip([(0, 6), (1, 5), (2, 4)], bandcols):
             ax.axhspan(p[lo], p[hi], color=c, lw=0, zorder=0)
@@ -72,15 +73,13 @@ def main(path="desi_dr1_main_bright_sample.csv.gz"):
             x, ytop, ybot = xarr[lab], p[lo], p[hi]
             ax.annotate("", xy=(x, ytop), xytext=(x, ytop - L), arrowprops=ap, zorder=8)
             ax.annotate("", xy=(x, ybot), xytext=(x, ybot + L), arrowprops=ap, zorder=8)
-            ax.annotate(f3(ybot - ytop), xy=(x, ytop - L), xytext=(0, 1.5), textcoords="offset points",
+            ax.annotate(f"{ybot - ytop:.1f}", xy=(x, ytop - L), xytext=(0, 1.5), textcoords="offset points",
                         ha="center", va="bottom", fontsize=7, color=dimc, zorder=8)
         yc = med["M_H"] if key == "M_H" else med["M_H"] + offset
         ax.set_ylim(yc + 9, yc - 9); ax.set_xlim(-2.6, 0.75); ax.yaxis.set_major_locator(MultipleLocator(2))
-        ax.text(0.97, 0.03, f"least-squares slope (all objects) = {neg(f3(sl))} mag per dex",
-                transform=ax.transAxes, ha="right", va="bottom", fontsize=6, zorder=7)
+        fits[key] = (sl, ic)
         ax.set_title(title); ax.set_xlabel(r"$\log_{10} z$")
-        if key == "M_H": ax.set_ylabel(r"absolute magnitude $M_r$")
-    cb = fig.colorbar(hb, ax=axs, shrink=0.75, pad=0.01); cb.set_label("objects per cell")
+        if key == "M_H": ax.set_ylabel("Absolute magnitude")
     h = [Patch(facecolor=bandcols[2], edgecolor=edgec, lw=0.4, label="central 68%"),
          Line2D([], [], color=cG, marker="o", ms=2.6, lw=1.1, label="galaxy median per 0.1 dex"),
          Patch(facecolor=bandcols[1], edgecolor=edgec, lw=0.4, label="central 95%"),
@@ -92,8 +91,23 @@ def main(path="desi_dr1_main_bright_sample.csv.gz"):
     # ncol=4 fills column by column: row 1 = bands, row 2 = galaxy, quasar, overall medians and LSQ fit
     fig.legend(handles=[h[0], h[1], h[2], h[3], h[4], h[6], blank, h[5]], loc="upper center",
                bbox_to_anchor=(0.47, 0.0), ncol=4, fontsize=6, columnspacing=1.4)
+    # horizontal colour bar below the legend, outside the panel layout so the panels keep full width
+    cax = fig.add_axes([0.33, -0.165, 0.30, 0.022])
+    cb = fig.colorbar(hb, cax=cax, orientation="horizontal"); cb.set_label("objects per cell", fontsize=6)
+    cb.ax.tick_params(labelsize=6)
     for ax, letter in zip(axs, "ab"):
         ax.text(-0.18, 1.02, letter, transform=ax.transAxes, fontweight="bold", fontsize=9, va="bottom", ha="left")
+    # slope labels: parallel to each fit line, just above it, near the sparse left end.
+    # The angle is computed after the layout is final so it matches the drawn line.
+    fig.canvas.draw()
+    for ax, key in zip(axs, ("M_H", "M_AdS")):
+        sl, ic = fits[key]; xl = {"M_H": -1.62, "M_AdS": -1.98}[key]; yl = ic + sl*xl
+        p1, p2 = ax.transData.transform([(xl - 0.1, ic + sl*(xl - 0.1)), (xl + 0.1, ic + sl*(xl + 0.1))])
+        ang = np.arctan2(p2[1] - p1[1], p2[0] - p1[0])
+        ax.annotate(f"slope {neg(f3(sl))} mag dex$^{{-1}}$", xy=(xl, yl),
+                    xytext=(-4*np.sin(ang), 4*np.cos(ang)), textcoords="offset points",
+                    rotation=np.degrees(ang), rotation_mode="anchor", ha="center", va="bottom",
+                    fontsize=6, zorder=7)
     # solid frame outlines (matplotlib's default "no outline" is written as a transparent state)
     fig.patch.set_edgecolor(fig.patch.get_facecolor())
     for a in fig.axes: a.patch.set_edgecolor(a.patch.get_facecolor())   # panels and colour bar
