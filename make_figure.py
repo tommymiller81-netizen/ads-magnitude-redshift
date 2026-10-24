@@ -53,6 +53,12 @@ CG, CQ, CF, DIMC = "#0072B2", "#D55E00", "#000000", "#7a5c0f"     # Okabe-Ito bl
 XARR = {"99.7": -2.40, "95": -2.14, "68": -1.88}; L = 1.1           # band-width arrows (log z positions, length in mag)
 SPAN = 9.0                                                          # each panel shows median +/- 9 mag
 
+# legend sample of the dashed fit line: handle length 2.0 x 8 pt = 16 pt; dash 5 and gap 2 (x lw 1.1 = 5.5, 2.2 pt).
+# Two whole periods would leave a 0.6-pt sliver at the right end that reads as a dot, so the pattern is offset to
+# give equal partial dashes at both ends: a + g + d + g + a = 16 pt -> a = 3.05 pt, offset = d - a (in lw units).
+_L, _d, _g = 2.0*8, 5*1.1, 2*1.1
+LEG_DASH_OFF = (_d - (_L - 2*_g - _d)/2)/1.1
+
 def draw(panels, ylabel, out, invert=True, ylim=None, xarr=None, xarr_lo=None, figsize=(5.85, 3.3), cbar_y=-0.205,
          label_at="top", suptitle=None):
     """panels: list of dicts with keys lz, v, isQ, title, xl (log z of a slope label along the line, or ("top", d)), ylim (optional).
@@ -117,7 +123,7 @@ def draw(panels, ylabel, out, invert=True, ylim=None, xarr=None, xarr_lo=None, f
          Patch(facecolor=BANDC[1], edgecolor=EDGEC, lw=0.4, label="central 95%"),
          Line2D([], [], color=CQ, marker="s", ms=3.0, mfc=CQ, mec=CQ, mew=0.3, lw=0.9, label="quasar median"),
          Patch(facecolor=BANDC[0], edgecolor=EDGEC, lw=0.4, label="central 99.7%"),
-         Line2D([], [], color=CF, lw=1.1, ls=(0, (5, 2)), label="least-squares fit")]
+         Line2D([], [], color=CF, lw=1.1, ls=(LEG_DASH_OFF, (5, 2)), label="least-squares fit")]
     # ncol=3 fills column by column: row 1 = bands, row 2 = galaxy median, quasar median, LSQ fit
     fig.legend(handles=h, loc="upper center", bbox_to_anchor=(0.5, 0.0), ncol=3, fontsize=8, columnspacing=1.6)
     # horizontal color bar below the legend, outside the panel layout so the panels keep full width
