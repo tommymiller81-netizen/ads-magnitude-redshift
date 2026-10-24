@@ -10,7 +10,7 @@ comparison figures in T. Miller, *Radius, redshift, rotation, and radiation: the
 |---|---|---|
 | `desi_bright_selection.py` | DESI DR1 bright-time sample and its statistics | ~10 min (`--test`: 1% slice; `--exclude-failures`: redshift-failure test) |
 | `make_figure.py` | the main figure (absolute magnitude; rows SDSS and DESI, columns anti-de Sitter and Hubble) and the appendix figure (apparent magnitude, SDSS and DESI); PDF and PNG | ~1 min |
-| `sdss_legacy_selection.py` | SDSS-I/II comparison sample and its statistics | ~10 min (includes a 1.7 GB download) |
+| `sdss_legacy_selection.py` | SDSS-I/II comparison sample and its statistics | ~10 min (includes a 1.7 GB download; `--exclude-zero-flux`: zero-flux test) |
 
 ## Quick start
 
@@ -83,7 +83,23 @@ For DESI, `desi_bright_selection.py` also prints the Hubble statistics for q₀ 
 and flat ΛCDM with Ωm = 0.3 (2.2/4.9/12.7 mag): smaller q₀ widens the Hubble distribution; of the cases considered,
 q₀ = 1 gives the narrowest.
 
-### Redshift-failure test (optional)
+### Zero-flux test, SDSS (optional)
+
+SDSS magnitudes are asinh magnitudes (Lupton, Gunn & Szalay 1999), which stay finite at zero flux:
+in r, zero flux gives `modelMag_r` = 24.80 and negative flux gives fainter values. 504 objects
+(485 galaxies, 19 quasars) have `modelMag_r` ≥ 24.80; they form the faint diagonal sequences in the
+SDSS absolute-magnitude panels. `python sdss_legacy_selection.py --exclude-zero-flux` repeats the
+statistics without them. The full sample is still used for the figures.
+
+| SDSS-I/II | Relation | Δ68 | Δ95 | Δ99.7 [mag] | Slope [mag/dex] |
+|---|---|---|---|---|---|
+| without zero-flux objects | anti-de Sitter | 1.4 | 3.3 | 7.6 | +0.1 |
+| without zero-flux objects | Hubble | 2.2 | 6.7 | 12.5 | −3.1 |
+
+The 68 and 95% widths change by at most 0.02 mag; the Hubble values above differ from the full-sample
+2.3 and 6.8 only through rounding.
+
+### Redshift-failure test, DESI (optional)
 
 `python desi_bright_selection.py --exclude-failures` also downloads `DELTACHI2` and repeats the
 statistics after removing likely redshift failures: `DELTACHI2 ≤ 40`, and objects classified as

@@ -98,17 +98,19 @@ def _panel(ax, P, ylabel, invert, ylim, xarr, xarr_lo, label_at, ap, edges, cen,
     ax.plot(cen, medQ, "-", color=CQ, lw=0.9, zorder=9)
     ax.plot(cen, medQ, ls="none", marker="s", mfc=CQ, mec=CQ, mew=0.3, ms=3.0, zorder=9)
     ax.plot(cen, medG, "o-", color=CG, ms=2.6, lw=1.1, zorder=10)  # medians above arrows (zorder 8)
-    for lab, (lo, hi) in [("68", (2, 4)), ("95", (1, 5)), ("99.7", (0, 6))]:
+    for lab, (lo, hi) in ([] if ARROWS == "none" else [("68", (2, 4)), ("95", (1, 5)), ("99.7", (0, 6))]):
         # e_up / e_dn: band edges that appear at the top / bottom of the panel
         e_up, e_dn = (p[lo], p[hi]) if invert else (p[hi], p[lo])
         s_ = -1 if invert else 1                                   # +1 if larger values plot higher
         xu, xd = xarr[lab], xarr_lo[lab]
-        ax.annotate("", xy=(xu, e_up), xytext=(xu, e_up + s_*L), arrowprops=ap, zorder=8)   # points down
-        ax.annotate("", xy=(xd, e_dn), xytext=(xd, e_dn - s_*L), arrowprops=ap, zorder=8)   # points up
+        La = L if ARROWS == "full" else 0.8
+        ax.annotate("", xy=(xu, e_up), xytext=(xu, e_up + s_*La), arrowprops=ap, zorder=8)   # points down
+        ax.annotate("", xy=(xd, e_dn), xytext=(xd, e_dn - s_*La), arrowprops=ap, zorder=8)   # points up
         # width label above the upper arrow, or below the lower arrow
         if label_at == "top":
-            ax.annotate(f"{p[hi] - p[lo]:.1f}", xy=(xu, e_up + s_*L), xytext=(0, 1.5), textcoords="offset points",
-                        ha="center", va="bottom", fontsize=8, color=DIMC, zorder=8)
+            ax.annotate(f"{p[hi] - p[lo]:.1f}", xy=(xu, e_up + s_*La), xytext=(0, 1.5), textcoords="offset points",
+                        ha="center", va="bottom", fontsize=8 if ARROWS == "full" else 7,
+                        color=DIMC if ARROWS == "full" else ACOL_LIGHT, zorder=8)
         else:
             ax.annotate(f"{p[hi] - p[lo]:.1f}", xy=(xd, e_dn - s_*L), xytext=(0, -1.5), textcoords="offset points",
                         ha="center", va="top", fontsize=8, color=DIMC, zorder=8)
@@ -127,6 +129,9 @@ def draw_grid(rows, out, ylabels, letters, invert=True, xarr=None, ymag=18.0, ta
     Gray shading: fraction of the panel's sample per cell (weights 1/N), one color scale for all panels.
     Legend and color bar share one strip below the panels, no wider than the panels."""
     ap = dict(arrowstyle="-|>,head_length=0.5,head_width=0.25", lw=1.4, color=DIMC, shrinkA=0, shrinkB=0, mutation_scale=10)
+    if ARROWS == "light":
+        ap = dict(arrowstyle="-|>,head_length=0.4,head_width=0.18", lw=0.8, color=ACOL_LIGHT, shrinkA=0, shrinkB=0,
+                  mutation_scale=9)
     xarr = xarr or XARR
     edges = np.arange(-2.6, 0.75, 0.1); cen = 0.5*(edges[1:] + edges[:-1])
     nr, nc = len(rows), len(rows[0]); target = (target_w, ymag/6.8)
@@ -140,8 +145,15 @@ def draw_grid(rows, out, ylabels, letters, invert=True, xarr=None, ymag=18.0, ta
             hbs.append(hb)
             top = ax.get_ylim()[1]                                  # value at the upper edge (inverted or not)
             yl = top + XL_TOP[1] if invert else top - XL_TOP[1]
+            yl = top + SLOPE_D if invert else top - SLOPE_D
             ax.text(0.5, yl, f"slope = {sgn(fit[0])}", transform=ax.get_yaxis_transform(),
-                    ha="center", va="bottom", fontsize=8, zorder=7)
+                    ha="center", va="bottom", fontsize=SLOPE_FS, zorder=7)
+            if WIDTHS_LINE:
+                q = np.percentile(P["v"], [0.15, 2.5, 16, 84, 97.5, 99.85])
+                yw = top + SLOPE_D + 0.95 if invert else top - SLOPE_D - 0.95
+                ax.text(0.5, yw, f"widths {q[3]-q[2]:.1f}, {q[4]-q[1]:.1f}, {q[5]-q[0]:.1f} mag",
+                        transform=ax.get_yaxis_transform(), ha="center", va="bottom", fontsize=7,
+                        color="0.35", zorder=7)
             ax.text(-0.18, 1.02, letters[r][c], transform=ax.transAxes, fontweight="bold", fontsize=10,
                     va="bottom", ha="left")
     h = [Patch(facecolor=BANDC[2], edgecolor=EDGEC, lw=0.4, label="central 68%"),
@@ -211,12 +223,15 @@ def main(desi="desi_dr1_main_bright_sample.csv.gz", sdss="sdss_legacy_sample.csv
               [r"$\mathbf{SDSS}$ absolute magnitude", r"$\mathbf{DESI}$ absolute magnitude"],
               [["a1", "a2"], ["b1", "b2"]])
     # appendix: apparent magnitude, one row, (a) SDSS and (b) DESI; not inverted (fainter upward);
-    # 15-mag range at the same mag/in, so slopes compare directly with the main figure
-    draw_grid([[dict(lz=lzs, v=ms, isQ=isQs, ylim=(11.0, 26.0), title="SDSS"),
-                dict(lz=lz, v=m, isQ=isQ, ylim=(11.0, 26.0), title="DESI")]],
+    # 18-mag range, the same panel size and scale as the main figure, so slopes compare directly
+    draw_grid([[dict(lz=lzs, v=ms, isQ=isQs, ylim=(10.0, 28.0), title="SDSS"),
+                dict(lz=lz, v=m, isQ=isQ, ylim=(10.0, 28.0), title="DESI")]],
               "apparent_magnitude_sdss_desi", ["Apparent magnitude"], [["a", "b"]],
-              invert=False, xarr=XARR_APP, ymag=15.0)
+              invert=False, xarr=XARR_APP, ymag=18.0)
 
+# Annotation emphasis (user's choice): the slope is the headline number (9 pt, same size as the titles);
+# the band widths are secondary and appear as one 7-pt gray line under it. No width arrows.
+ARROWS, WIDTHS_LINE, SLOPE_FS, SLOPE_D, ACOL_LIGHT = "none", True, 9, 1.6, "#a8892f"
 XL_TOP = ("top", 2.8)    # slope labels in all figures: horizontal, centred, bottom 2.8 mag (0.41 in) below the top edge
 # appendix arrows: opposing arrows share one vertical line; slightly wider spacing than the main
 # figure because the DESI band edges bunch up at the faint limit
