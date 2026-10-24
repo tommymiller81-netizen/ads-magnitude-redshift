@@ -2,8 +2,7 @@
 *.csv.gz
 *.fits
 *.fits.part
-desi_bright_hubble_vs_ads.png
+absolute_magnitude_sdss_desi.png
 __pycache__/
 .DS_Store
 apparent_magnitude_sdss_desi.png
-sdss_hubble_vs_ads.png

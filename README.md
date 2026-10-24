@@ -9,7 +9,7 @@ comparison figure in T. Miller, *Radius, redshift, rotation, and radiation: the 
 | Script | Reproduces | Run time |
 |---|---|---|
 | `desi_bright_selection.py` | DESI DR1 bright-time sample and its statistics | ~10 min (`--test`: 1% slice; `--exclude-failures`: redshift-failure test) |
-| `make_figure.py` | the main figure (DESI, anti-de Sitter and Hubble) and the appendix figure (apparent magnitude, SDSS and DESI); PDF and PNG | ~1 min |
+| `make_figure.py` | the main figure (absolute magnitude; rows SDSS and DESI, columns anti-de Sitter and Hubble) and the appendix figure (apparent magnitude, SDSS and DESI); PDF and PNG | ~1 min |
 | `sdss_legacy_selection.py` | SDSS-I/II comparison sample and its statistics | ~10 min (includes a 1.7 GB download) |
 
 ## Quick start
@@ -17,8 +17,8 @@ comparison figure in T. Miller, *Radius, redshift, rotation, and radiation: the 
 ```bash
 pip install -r requirements.txt
 python desi_bright_selection.py        # writes desi_dr1_main_bright_sample.csv.gz
-python make_figure.py                  # writes desi_bright_hubble_vs_ads.png/.pdf
 python sdss_legacy_selection.py        # writes sdss_legacy_sample.csv.gz
+python make_figure.py                  # writes absolute_magnitude_sdss_desi and apparent_magnitude_sdss_desi (.png/.pdf)
 ```
 
 All data are public, and no accounts are needed. Each script prints the sample size and the statistics, so they can be checked against the tables below. Tested with Python 3.11.17, numpy 2.4.6, pandas 2.3.3, matplotlib 3.11.2, astropy 8.0.2 and requests 2.34.2.
@@ -67,7 +67,7 @@ The sample contains **921,571** objects (854,330 galaxies and 67,241 quasars).
 - Hubble (q₀ = 1): M = m_r − 5 log₁₀ z + C_H, with C_H = −43.0
 - Δ68 = P84 − P16, Δ95 = P97.5 − P2.5, Δ99.7 = P99.85 − P0.15. These use `numpy.percentile` with linear interpolation, over all objects pooled.
 - The slope is an unweighted least-squares fit of M on log₁₀ z, with no clipping.
-- Running medians in the figure use bins of 0.1 in log₁₀ z, Galaxy and quasar medians need at least 1000 galaxies and 200 quasars per bin, respectively.
+- Running medians in the figures use bins of 0.1 in log₁₀ z, Galaxy and quasar medians need at least 1000 galaxies and 200 quasars per bin, respectively.
 
 | Sample | Relation | Δ68 | Δ95 | Δ99.7 [mag] | Slope [mag/dex] |
 |---|---|---|---|---|---|
@@ -88,7 +88,7 @@ q₀ = 1 gives the narrowest.
 `python desi_bright_selection.py --exclude-failures` also downloads `DELTACHI2` and repeats the
 statistics after removing likely redshift failures: `DELTACHI2 ≤ 40`, and objects classified as
 galaxies at z ≥ 1.6 (a pile-up below the z = 1.7 limit of the Redrock galaxy templates). This removes
-56,834 of 6,015,420 objects (0.94%). The full sample is still used for the figure; the reduced
+56,834 of 6,015,420 objects (0.94%). The full sample is still used for the figures; the reduced
 sample is written to `desi_dr1_main_bright_sample_nofail.csv.gz`.
 
 | DESI DR1 bright | Relation | Δ68 | Δ95 | Δ99.7 [mag] | Slope [mag/dex] |
