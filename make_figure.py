@@ -68,7 +68,7 @@ def main(path="desi_dr1_main_bright_sample.csv.gz"):
         medG, medQ = bmed(~isQ, NMIN_G), bmed(isQ, NMIN_Q)
         # overall median: every bin in which a galaxy or a quasar median is shown
         medA = np.where(np.isfinite(medG) | np.isfinite(medQ), bmed(np.ones_like(isQ), 1), np.nan)
-        ax.plot(cen, medA, "D-", color="black", ms=4.0, lw=1.6, zorder=4.5)
+        ax.plot(cen, medA, "D-", color="black", ms=4.8, lw=1.6, zorder=4.5)
         ax.plot(cen, medQ, "-", color=cQ, lw=0.9, zorder=5)
         ax.plot(cen, medQ, ls="none", marker=RING, mfc=cQ, mec=cQ, mew=0.3, ms=3.6, zorder=5)
         ax.plot(cen, medG, "o-", color=cG, ms=2.6, lw=1.1, zorder=6)
@@ -107,7 +107,7 @@ def main(path="desi_dr1_main_bright_sample.csv.gz"):
         sl, ic = fits[key]; xl = {"M_H": -1.62, "M_AdS": -1.98}[key]; yl = ic + sl*xl
         p1, p2 = ax.transData.transform([(xl - 0.1, ic + sl*(xl - 0.1)), (xl + 0.1, ic + sl*(xl + 0.1))])
         ang = np.arctan2(p2[1] - p1[1], p2[0] - p1[0])
-        ax.annotate(f"slope {neg(f3(sl))}", xy=(xl, yl),
+        ax.annotate(f"slope\u2002{neg(f3(sl))}", xy=(xl, yl),
                     xytext=(-4*np.sin(ang), 4*np.cos(ang)), textcoords="offset points",
                     rotation=np.degrees(ang), rotation_mode="anchor", ha="center", va="bottom",
                     fontsize=6, zorder=7)
