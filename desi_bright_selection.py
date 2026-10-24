@@ -56,11 +56,22 @@ def query(adql):
         time.sleep(20)
     raise RuntimeError(r.text[:300])
 
+def dl_lcdm(z, om=0.3):
+    """Flat LCDM luminosity distance in units of c/H0 (trapezoidal integral on a fine grid)."""
+    zg = np.linspace(0, z.max()*1.001, 200001)
+    dc = np.concatenate([[0], np.cumsum(np.diff(zg)*0.5*(1/np.sqrt(om*(1+zg[1:])**3 + 1-om)
+                                                          + 1/np.sqrt(om*(1+zg[:-1])**3 + 1-om)))])
+    return (1 + z)*np.interp(z, zg, dc)
+
 def stats(d, label):
     m = 22.5 - 2.5*np.log10(d.flux_r.astype(float))
     z = d.z.astype(float); lz = np.log10(z)
     M = {"anti-de Sitter (C_AdS = -55.3)": m - 2.5*np.log10(1 - (1 + z)**-2) - 55.3,
-         "Hubble (q0 = 1, C_H = -43.0)":   m - 5*lz - 43.0}
+         "Hubble (q0 = 1, C_H = -43.0)":   m - 5*lz - 43.0,
+         # reference rows: smaller q0 and flat LCDM (constants omitted; widths do not depend on them)
+         "Hubble (q0 = 0.5, Mattig)":      m - 5*np.log10(2*(z + 1 - np.sqrt(1 + z))),
+         "Hubble (flat LCDM, Om = 0.3)":   m - 5*np.log10(dl_lcdm(z.to_numpy())),
+         "apparent m_r (no distance)":     m}
     print(f"{label}: N = {len(d):,}  ({(d.spectype=='GALAXY').sum():,} galaxies, "
           f"{(d.spectype=='QSO').sum():,} quasars)")
     for name, v in M.items():

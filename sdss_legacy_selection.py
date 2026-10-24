@@ -64,7 +64,8 @@ def main():
     k.to_csv("sdss_legacy_sample.csv.gz", index=False)
     lz = np.log10(k.z_use.to_numpy()); m = k.modelMag_r.to_numpy()
     M = {"anti-de Sitter (C_AdS = -55.3)": m - 2.5*np.log10(1 - (1 + k.z_use.to_numpy())**-2) - 55.3,
-         "Hubble (q0 = 1, C_H = -43.0)":   m - 5*lz - 43.0}
+         "Hubble (q0 = 1, C_H = -43.0)":   m - 5*lz - 43.0,
+         "apparent m_r (no distance)":     m}
     print(f"N = {len(k):,}  ({(k['sample']=='GALAXY').sum():,} galaxies, {(k['sample']=='QSO').sum():,} quasars)")
     for name, v in M.items():
         p = np.percentile(v, [0.15, 2.5, 16, 84, 97.5, 99.85]); slope = np.polyfit(lz, v, 1)[0]
