@@ -50,7 +50,8 @@ CG, CQ, CF, DIMC = "#0072B2", "#D55E00", "#000000", "#7a5c0f"     # Okabe-Ito bl
 XARR = {"99.7": -2.40, "95": -2.14, "68": -1.88}; L = 1.1           # band-width arrows (log z positions, length in mag)
 SPAN = 9.0                                                          # each panel shows median +/- 9 mag
 
-def draw(panels, ylabel, out, invert=True, ylim=None, xarr=None, xarr_lo=None, figsize=(5.85, 3.3), cbar_y=-0.205):
+def draw(panels, ylabel, out, invert=True, ylim=None, xarr=None, xarr_lo=None, figsize=(5.85, 3.3), cbar_y=-0.205,
+         label_at="top"):
     """panels: list of dicts with keys lz, v, isQ, title, xl (log z of the slope label).
     invert=True puts brighter (smaller) magnitudes at the top, the convention for absolute magnitude;
     invert=False is the classic Hubble-diagram orientation for apparent magnitude (fainter upward)."""
@@ -87,9 +88,13 @@ def draw(panels, ylabel, out, invert=True, ylim=None, xarr=None, xarr_lo=None, f
             xu, xd = xarr[lab], xarr_lo[lab]
             ax.annotate("", xy=(xu, e_up), xytext=(xu, e_up + s_*L), arrowprops=ap, zorder=8)   # points down
             ax.annotate("", xy=(xd, e_dn), xytext=(xd, e_dn - s_*L), arrowprops=ap, zorder=8)   # points up
-            # width label above the upper arrow
-            ax.annotate(f"{p[hi] - p[lo]:.1f}", xy=(xu, e_up + s_*L), xytext=(0, 1.5), textcoords="offset points",
-                        ha="center", va="bottom", fontsize=8, color=DIMC, zorder=8)
+            # width label above the upper arrow, or below the lower arrow
+            if label_at == "top":
+                ax.annotate(f"{p[hi] - p[lo]:.1f}", xy=(xu, e_up + s_*L), xytext=(0, 1.5), textcoords="offset points",
+                            ha="center", va="bottom", fontsize=8, color=DIMC, zorder=8)
+            else:
+                ax.annotate(f"{p[hi] - p[lo]:.1f}", xy=(xd, e_dn - s_*L), xytext=(0, -1.5), textcoords="offset points",
+                            ha="center", va="top", fontsize=8, color=DIMC, zorder=8)
         ax.set_ylim(*((y1, y0) if invert else (y0, y1))); ax.set_xlim(-2.6, 0.75); ax.yaxis.set_major_locator(MultipleLocator(2))
         ax.set_title(P["title"]); ax.set_xlabel(r"$\log_{10} z$")
         if ax is axs[0]: ax.set_ylabel(ylabel)
@@ -154,15 +159,14 @@ def main(desi="desi_dr1_main_bright_sample.csv.gz", sdss="sdss_legacy_sample.csv
         draw([dict(lz=np.log10(zs), v=ms, isQ=isQs, xl=XL_APP[0], side=1, title="SDSS"),
               dict(lz=lz, v=m, isQ=isQ, xl=XL_APP[1], side=1, title="DESI")],
              "Apparent magnitude", "apparent_magnitude_sdss_desi", invert=False, ylim=(11.0, 26.0),
-             xarr=XARR_APP_UP, xarr_lo=XARR_APP_DN, figsize=(5.818, 2.85))
+             xarr=XARR_APP, figsize=(5.818, 2.85))
     else:
         print(f"{sdss} not found: appendix figure skipped (run sdss_legacy_selection.py first)")
 
 XL_APP = (0.40, 0.40)     # log z of the slope labels in the appendix figure (SDSS, DESI)
-# appendix arrows: those pointing down (with the width labels) at the upper left, those pointing
-# up at the lower right, where the panels are empty
-XARR_APP_UP = {"99.7": -2.45, "95": -2.08, "68": -1.71}
-XARR_APP_DN = {"68": 0.30, "95": 0.47, "99.7": 0.64}
+# appendix arrows: opposing arrows share one vertical line; slightly wider spacing than the main
+# figure because the DESI band edges bunch up at the faint limit
+XARR_APP = {"99.7": -2.45, "95": -2.08, "68": -1.71}
 
 if __name__ == "__main__":
     main(*sys.argv[1:3])
