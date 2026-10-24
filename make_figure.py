@@ -33,6 +33,7 @@ mpl.rcParams.update({
     "pdf.fonttype": 42, "ps.fonttype": 42})
 
 f3  = lambda x: format(x, "#.3g").rstrip(".")      # 3 significant figures
+NMIN_G, NMIN_Q = 1000, 200                          # min. galaxies / quasars per bin for running medians
 neg = lambda s: s.replace("-", "\u2212")           # typographic minus
 
 def main(path="desi_dr1_main_bright_sample.csv.gz"):
@@ -51,7 +52,7 @@ def main(path="desi_dr1_main_bright_sample.csv.gz"):
     fig, axs = plt.subplots(1, 2, figsize=(7.0, 3.6), constrained_layout=True)
     fits = {}
     for ax, (key, title) in zip(axs, [("M_H", r"Hubble ($C_{\rm H} = -43.0$)"),
-                                      ("M_AdS", r"Anti-de Sitter ($C_{\rm DS} = -55.3$)")]):
+                                      ("M_AdS", r"Anti-de Sitter ($C_{\rm AdS} = -55.3$)")]):
         v = M[key]; p = np.percentile(v, [0.15, 2.5, 16, 50, 84, 97.5, 99.85])
         for (lo, hi), c in zip([(0, 6), (1, 5), (2, 4)], bandcols):
             ax.axhspan(p[lo], p[hi], color=c, lw=0, zorder=0)
@@ -64,11 +65,13 @@ def main(path="desi_dr1_main_bright_sample.csv.gz"):
         def bmed(sel, nmin):
             vv, ii = v[sel], idx[sel]
             return np.array([np.median(vv[ii == b]) if (ii == b).sum() >= nmin else np.nan for b in range(len(cen))])
-        allsel = np.ones_like(isQ)
-        ax.plot(cen, bmed(allsel, 1000), "D-", color="black", ms=4.0, lw=1.6, zorder=4.5)
-        ax.plot(cen, bmed(isQ, 200), "-", color=cQ, lw=0.9, zorder=5)
-        ax.plot(cen, bmed(isQ, 200), ls="none", marker=RING, mfc=cQ, mec=cQ, mew=0.3, ms=3.6, zorder=5)
-        ax.plot(cen, bmed(~isQ, 1000), "o-", color=cG, ms=2.6, lw=1.1, zorder=6)
+        medG, medQ = bmed(~isQ, NMIN_G), bmed(isQ, NMIN_Q)
+        # overall median: every bin in which a galaxy or a quasar median is shown
+        medA = np.where(np.isfinite(medG) | np.isfinite(medQ), bmed(np.ones_like(isQ), 1), np.nan)
+        ax.plot(cen, medA, "D-", color="black", ms=4.0, lw=1.6, zorder=4.5)
+        ax.plot(cen, medQ, "-", color=cQ, lw=0.9, zorder=5)
+        ax.plot(cen, medQ, ls="none", marker=RING, mfc=cQ, mec=cQ, mew=0.3, ms=3.6, zorder=5)
+        ax.plot(cen, medG, "o-", color=cG, ms=2.6, lw=1.1, zorder=6)
         for lab, (lo, hi) in [("68", (2, 4)), ("95", (1, 5)), ("99.7", (0, 6))]:
             x, ytop, ybot = xarr[lab], p[lo], p[hi]
             ax.annotate("", xy=(x, ytop), xytext=(x, ytop - L), arrowprops=ap, zorder=8)
@@ -104,7 +107,7 @@ def main(path="desi_dr1_main_bright_sample.csv.gz"):
         sl, ic = fits[key]; xl = {"M_H": -1.62, "M_AdS": -1.98}[key]; yl = ic + sl*xl
         p1, p2 = ax.transData.transform([(xl - 0.1, ic + sl*(xl - 0.1)), (xl + 0.1, ic + sl*(xl + 0.1))])
         ang = np.arctan2(p2[1] - p1[1], p2[0] - p1[0])
-        ax.annotate(f"slope {neg(f3(sl))} mag dex$^{{-1}}$", xy=(xl, yl),
+        ax.annotate(f"slope {neg(f3(sl))}", xy=(xl, yl),
                     xytext=(-4*np.sin(ang), 4*np.cos(ang)), textcoords="offset points",
                     rotation=np.degrees(ang), rotation_mode="anchor", ha="center", va="bottom",
                     fontsize=6, zorder=7)
