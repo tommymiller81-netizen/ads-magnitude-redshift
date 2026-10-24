@@ -9,7 +9,7 @@ comparison figure in T. Miller, *Radius, redshift, rotation, and radiation: the 
 | Script | Reproduces | Run time |
 |---|---|---|
 | `desi_bright_selection.py` | DESI DR1 bright-time sample and its statistics | ~10 min (`--test`: 1% slice; `--exclude-failures`: redshift-failure test) |
-| `make_figure.py` | the comparison figure (PNG and PDF) | ~1 min |
+| `make_figure.py` | the main figure (DESI, anti-de Sitter and Hubble) and the appendix figure (apparent magnitude, SDSS and DESI); PDF and PNG | ~1 min |
 | `sdss_legacy_selection.py` | SDSS-I/II comparison sample and its statistics | ~10 min (includes a 1.7 GB download) |
 
 ## Quick start
@@ -71,12 +71,12 @@ The sample contains **921,571** objects (854,330 galaxies and 67,241 quasars).
 
 | Sample | Relation | Δ68 | Δ95 | Δ99.7 [mag] | Slope [mag/dex] |
 |---|---|---|---|---|---|
-| DESI DR1 bright | anti-de Sitter | 1.4 | 3.2 | 6.3 | −0.5 |
-| DESI DR1 bright | Hubble | 2.0 | 4.5 | 11.5 | −3.5 |
-| DESI DR1 bright | apparent m_r (baseline) | 1.6 | 3.5 | 5.7 | +1.5 |
 | SDSS-I/II | anti-de Sitter | 1.4 | 3.3 | 8.5 | +0.1 |
 | SDSS-I/II | Hubble | 2.3 | 6.8 | 13.0 | −3.1 |
 | SDSS-I/II | apparent m_r (baseline) | 2.1 | 4.7 | 8.6 | +1.9 |
+| DESI DR1 bright | anti-de Sitter | 1.4 | 3.2 | 6.3 | −0.5 |
+| DESI DR1 bright | Hubble | 2.0 | 4.5 | 11.5 | −3.5 |
+| DESI DR1 bright | apparent m_r (baseline) | 1.6 | 3.5 | 5.7 | +1.5 |
 
 Both surveys select targets by apparent magnitude, so the spread of m_r provides a reference for the spread of M.
 For DESI, `desi_bright_selection.py` also prints the Hubble statistics for q₀ = 0.5 (2.0/4.6/12.0 mag)
