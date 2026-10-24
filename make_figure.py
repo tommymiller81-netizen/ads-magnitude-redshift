@@ -44,7 +44,7 @@ def main(path="desi_dr1_main_bright_sample.csv.gz"):
 
     edges = np.arange(-2.6, 0.75, 0.1); cen = 0.5*(edges[1:] + edges[:-1]); idx = np.digitize(lz, edges) - 1
     bandcols = ["#fffbe6", "#fff3bf", "#ffe88a"]; edgec = "#dfc77d"   # opaque (no transparency layers)
-    cG, cQ, cF, dimc = "#0072B2", "#D55E00", "#000000", "#333333"     # Okabe-Ito blue/vermillion
+    cG, cQ, cF, dimc = "#0072B2", "#D55E00", "#000000", "#7a5c0f"     # Okabe-Ito blue/vermillion; deep gold arrows (band hue, >=5:1 contrast on white/bands)
     xarr = {"99.7": -2.40, "95": -2.14, "68": -1.88}; L = 1.1
     ap = dict(arrowstyle="-|>,head_length=0.5,head_width=0.25", lw=1.4, color=dimc, shrinkA=0, shrinkB=0, mutation_scale=10)
     med = {k: float(np.median(v)) for k, v in M.items()}; offset = med["M_AdS"] - med["M_H"]
