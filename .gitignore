@@ -2,7 +2,10 @@
 *.csv.gz
 *.fits
 *.fits.part
-absolute_magnitude_sdss_desi.png
+absolute_magnitude_cfa_sdss_desi.png
 __pycache__/
 .DS_Store
-apparent_magnitude_sdss_desi.png
+apparent_magnitude_cfa_sdss_desi.png
+zcat.dat
+zbig.dat
+table1_1.dat.gz
