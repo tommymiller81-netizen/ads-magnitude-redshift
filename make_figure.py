@@ -31,6 +31,7 @@ from matplotlib.patches import Patch
 from matplotlib.lines import Line2D
 from matplotlib.ticker import MultipleLocator
 from matplotlib.colors import LogNorm
+import matplotlib.patheffects as pe
 
 mpl.rcParams.update({
     "font.family": "sans-serif", "font.size": 9, "axes.labelsize": 9, "axes.titlesize": 9,
@@ -52,6 +53,7 @@ BANDC = ["#fffbe6", "#fff3bf", "#ffe88a"]; EDGEC = "#dfc77d"        # 99.7%, 95%
 CG, CQ, CF = "#0072B2", "#D55E00", "#000000"                         # Okabe-Ito blue / vermillion; fit
 FIT_DASH = tuple(v/1.1 for v in (4.0, 2.0))  # least-squares line: 4-pt dashes, 2-pt gaps (line width 1.1 pt)
 SLOPE_FS, SLOPE_D, WGAP, LABEL_X = 9, 2.4, 1.25, 0.97   # slope label (pt; mag below top edge); widths line; x
+LABEL_HALO = [pe.withStroke(linewidth=2.2, foreground="white")]   # opaque white outline keeps labels off the data
 neg = lambda s: s.replace("-", "\u2212")                 # typographic minus
 sgn = lambda x: neg(f"{x:+.1f}")                         # one decimal, explicit sign
 
@@ -87,9 +89,9 @@ def panel(ax, P, edges, cen):
     if P.get("title"): ax.set_title(P["title"])
     # labels: slope (headline) and the band widths, right-aligned in the upper right
     ax.text(LABEL_X, y1 - SLOPE_D, f"slope = {sgn(sl)}", transform=ax.get_yaxis_transform(),
-            ha="right", va="bottom", fontsize=SLOPE_FS, zorder=7)
+            ha="right", va="bottom", fontsize=SLOPE_FS, zorder=11, path_effects=LABEL_HALO)
     ax.text(LABEL_X, y1 - SLOPE_D - WGAP, f"widths {p[4]-p[2]:.1f}/{p[5]-p[1]:.1f}/{p[6]-p[0]:.1f} mag",
-            transform=ax.get_yaxis_transform(), ha="right", va="bottom", fontsize=7, color="0.35", zorder=7)
+            transform=ax.get_yaxis_transform(), ha="right", va="bottom", fontsize=7, color="0.35", zorder=11, path_effects=LABEL_HALO)
     return hb, sl
 
 def draw_grid(rows, out, ylabels, letters, hide_inner_y=True, legend_ncol=3):
