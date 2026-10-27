@@ -1,5 +1,5 @@
 {
-  "title": "Magnitude–redshift analysis of SDSS and DESI galaxies and quasars",
+  "title": "Magnitude–redshift analysis of CfA, SDSS and DESI galaxies and quasars",
   "upload_type": "software",
   "version": "v1.1.0",
   "license": "MIT",
@@ -8,5 +8,5 @@
       "name": "Miller, Thomas"
     }
   ],
-  "description": "Scripts that rebuild the SDSS and DESI galaxy and quasar samples from the public catalogs and reproduce the magnitude–redshift statistics and figures of the accompanying paper (T. Miller, 'Radius, redshift, rotation, and radiation: the physical anti-de Sitter metric and entropic gravity', 2026)."
+  "description": "Scripts that rebuild the CfA, SDSS and DESI galaxy and quasar samples from the public catalogs and reproduce the magnitude–redshift statistics and figures of the accompanying paper (T. Miller, 'Radius, redshift, rotation, and radiation: the physical anti-de Sitter metric and entropic gravity', 2026)."
 }

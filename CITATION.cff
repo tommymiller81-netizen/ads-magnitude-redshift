@@ -1,6 +1,6 @@
 cff-version: 1.2.0
 message: "If you use this code, please cite the accompanying paper and this software."
-title: "Magnitude–redshift analysis of SDSS and DESI galaxies and quasars"
+title: "Magnitude–redshift analysis of CfA, SDSS and DESI galaxies and quasars"
 type: software
 authors:
   - family-names: "Miller"

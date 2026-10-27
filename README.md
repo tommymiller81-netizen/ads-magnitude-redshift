@@ -135,11 +135,11 @@ All three selection scripts print the statistics before and after the cuts; the 
 
 ## Citing this code
 
-Please cite the Zenodo archive: T. Miller, *Magnitude–redshift analysis of SDSS and DESI galaxies and quasars*, Zenodo (2026), doi:[10.5281/zenodo.23587580](https://doi.org/10.5281/zenodo.23587580). This DOI always resolves to the latest version. Version v1.1.0 is doi:[10.5281/zenodo.23617979](https://doi.org/10.5281/zenodo.23617979); v1.0.0 is doi:[10.5281/zenodo.23587581](https://doi.org/10.5281/zenodo.23587581).
+Please cite the Zenodo archive: T. Miller, *Magnitude–redshift analysis of CfA, SDSS and DESI galaxies and quasars*, Zenodo (2026), doi:[10.5281/zenodo.23587580](https://doi.org/10.5281/zenodo.23587580). This DOI always resolves to the latest version. Version v1.1.0 is doi:[10.5281/zenodo.23617979](https://doi.org/10.5281/zenodo.23617979); v1.0.0 is doi:[10.5281/zenodo.23587581](https://doi.org/10.5281/zenodo.23587581).
 
 ## Data credits
 
-When using these data, please cite the CfA Redshift Catalogue (Huchra et al. 1995, CDS VII/193), the Hewitt & Burbidge (1993) quasar catalog, SDSS DR17 (Abdurro'uf et al. 2022), DR16Q (Lyke et al. 2020), DESI DR1 (DESI Collaboration 2026) and Astro Data Lab (Nikutta et al. 2020).
+When using these data, please cite the CfA Redshift Catalogue (Huchra et al. 1995, CDS VII/193) and its description (Huchra et al. 1992, Bull. Inf. CDS 41, 31), the Hewitt & Burbidge (1993) quasar catalog, SDSS DR17 (Abdurro'uf et al. 2022), DR16Q (Lyke et al. 2020), DESI DR1 (DESI Collaboration 2026) and Astro Data Lab (Nikutta et al. 2020).
 
 ## License
 
