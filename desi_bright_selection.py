@@ -26,7 +26,7 @@ Quantities:
   m_r   = 22.5 - 2.5 log10(flux_r)          flux_r in nanomaggies (AB), no extinction
                                              or K-correction applied
   M_H   = m_r - 5 log10(z) - 43.0            Hubble, q0 = 1
-  M_AdS = m_r - 2.5 log10[1 - (1+z)^-2] - 55.3
+  M_dS = m_r - 2.5 log10[1 - (1+z)^-2] - 55.3
 Band widths: D68 = P84 - P16, D95 = P97.5 - P2.5, D99.7 = P99.85 - P0.15
 (numpy.percentile, default linear interpolation, all objects pooled).
 Slope: ordinary least squares of M on log10 z (numpy.polyfit, degree 1).
@@ -62,7 +62,7 @@ def dl_lcdm(z, om=0.3):
 def stats(d, label):
     m = 22.5 - 2.5*np.log10(d.flux_r.astype(float))
     z = d.z.astype(float); lz = np.log10(z)
-    M = {"anti-de Sitter (C_AdS = -55.3)": m - 2.5*np.log10(1 - (1 + z)**-2) - 55.3,
+    M = {"de Sitter (C_dS = -55.3)": m - 2.5*np.log10(1 - (1 + z)**-2) - 55.3,
          "Hubble (q0 = 1, C_H = -43.0)":   m - 5*lz - 43.0,
          # reference rows: smaller q0 and flat LCDM (constants omitted; widths do not depend on them)
          "Hubble (q0 = 0.5, Mattig)":      m - 5*np.log10(2*(z + 1 - np.sqrt(1 + z))),

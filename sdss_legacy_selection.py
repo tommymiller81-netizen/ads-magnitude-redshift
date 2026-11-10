@@ -77,7 +77,7 @@ def main():
 
 def report(k):
     lz = np.log10(k.z_use.to_numpy()); m = k.modelMag_r.to_numpy()
-    M = {"anti-de Sitter (C_AdS = -55.3)": m - 2.5*np.log10(1 - (1 + k.z_use.to_numpy())**-2) - 55.3,
+    M = {"de Sitter (C_dS = -55.3)": m - 2.5*np.log10(1 - (1 + k.z_use.to_numpy())**-2) - 55.3,
          "Hubble (q0 = 1, C_H = -43.0)":   m - 5*lz - 43.0,
          "apparent m_r (no distance)":     m}
     print(f"N = {len(k):,}  ({(k['sample']=='GALAXY').sum():,} galaxies, {(k['sample']=='QSO').sum():,} quasars)")

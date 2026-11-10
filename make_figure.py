@@ -3,7 +3,7 @@ Reproduce the figures of the paper.
 
 1. Main figure: absolute magnitude against log10 z. Rows: (a) CfA + Hewitt & Burbidge (to 1995),
    (b) SDSS-I/II (2000-2008), (c) DESI DR1 bright time (2021-2022).
-   Columns: (1) anti-de Sitter, (2) Hubble (q0 = 1).
+   Columns: (1) de Sitter, (2) Hubble (q0 = 1).
    Output: absolute_magnitude_cfa_sdss_desi.pdf/.png
 2. Appendix figure: apparent magnitude m against log10 z, (a) CfA, (b) SDSS, (c) DESI.
    Output: apparent_magnitude_cfa_sdss_desi.pdf/.png
@@ -42,7 +42,7 @@ mpl.rcParams.update({
     "axes.titlelocation": "left", "lines.linewidth": 1.2, "patch.linewidth": 0.6,
     "pdf.fonttype": 42, "ps.fonttype": 42})
 
-C_ADS, C_H = -55.3, -43.0                   # constants of the anti-de Sitter and Hubble relations (r band)
+C_ADS, C_H = -55.3, -43.0                   # constants of the de Sitter and Hubble relations (r band)
 XLIM = (-2.6, 0.75)                         # log10 z range of every panel
 YMAG = 18.0                                 # magnitude range of every panel
 PANEL_W = 1.50                              # panel width [in]; height = PANEL_W*1.11025 (4.84 mag per dex on paper)
@@ -180,7 +180,7 @@ def main(cfa="cfa_hb_sample.csv.gz", sdss="sdss_legacy_sample.csv.gz", desi="des
     rows, labels, app = [], [], []
     for k, (name, years, (z, m, q)) in enumerate(surveys):
         lz = np.log10(z)
-        rows.append([dict(lz=lz, v=ads(z, m), isQ=q, ylim=yl_A, title="Anti-de Sitter" if k == 0 else None),
+        rows.append([dict(lz=lz, v=ads(z, m), isQ=q, ylim=yl_A, title="de Sitter" if k == 0 else None),
                      dict(lz=lz, v=hub(z, m), isQ=q, ylim=yl_H, title="Hubble" if k == 0 else None)])
         labels.append(rf"$\mathbf{{{name}}}$ ({years})" + "\nabsolute magnitude $M$")
         app.append(dict(lz=lz, v=m, isQ=q, ylim=(10.0, 28.0), title=f"{name} ({years})"))

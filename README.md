@@ -4,14 +4,14 @@
 
 This repository reproduces the data selection, absolute-magnitude statistics and
 comparison figures in T. Miller, *Radius, redshift, rotation, and radiation: the physical anti-de Sitter metric and entropic gravity* (2026), prepared for submission to JHEP. It compares the Hubble relation
-(q₀ = 1) with the anti-de Sitter magnitude–redshift relation (appendix C of the paper) in three samples observed about a decade apart: the CfA Redshift Catalogue with the Hewitt & Burbidge quasar catalog (observations to 1995), SDSS-I/II (2000–2008) and DESI DR1 (2021–2022). The anti-de Sitter relation used here is eq. (7) of Miller & Miller (1995), Ap&SS 227, 53, which is called the de Sitter relation there.
+(q₀ = 1) with the de Sitter magnitude–redshift relation (appendix C of the paper) in three samples observed about a decade apart: the CfA Redshift Catalogue with the Hewitt & Burbidge quasar catalog (observations to 1995), SDSS-I/II (2000–2008) and DESI DR1 (2021–2022). The de Sitter relation used here is eq. (7) of Miller & Miller (1995), Ap&SS 227, 53.
 
 | Script | Reproduces | Run time |
 |---|---|---|
 | `cfa_hb_selection.py` | CfA + Hewitt & Burbidge sample and its statistics, with the values of Miller & Miller (1995) for comparison | <1 min (includes a 7 MB download) |
 | `sdss_legacy_selection.py` | SDSS-I/II sample and its statistics | ~10 min (includes a 1.7 GB download) |
 | `desi_bright_selection.py` | DESI DR1 bright-time sample and its statistics | ~10 min (`--test`: 1% slice) |
-| `make_figure.py` | the main figure (absolute magnitude; rows CfA, SDSS and DESI, columns anti-de Sitter and Hubble) and the appendix figure (apparent magnitude; CfA, SDSS and DESI); PDF and PNG | ~1 min |
+| `make_figure.py` | the main figure (absolute magnitude; rows CfA, SDSS and DESI, columns de Sitter and Hubble) and the appendix figure (apparent magnitude; CfA, SDSS and DESI); PDF and PNG | ~1 min |
 
 ## Quick start
 
@@ -47,9 +47,9 @@ The sample contains **31,129** objects (24,098 galaxies and 7,031 quasars). The 
 
 **Quality cut: blue-band magnitudes.** The CfA magnitude column is a blue magnitude, but some entries come from V, R or I photometry (source codes D, d, G, I, r, R, v, V, W) or have an unknown band (code 4, and blank codes in `zbig.dat`; in `zcat.dat` a blank code means B(0) of the First Reference Catalogue). Galaxies with these magnitudes are removed.
 
-**Comparison with 1995.** The script prints the 1995 values next to its own. For all objects, the Hubble slope is −2.99 mag/dex with R² = 0.79 (1995: −3.0, R² = 0.81), and the anti-de Sitter slope is +0.14 mag/dex with R² = 0.008 (1995: +0.076, R² = 0.0026). Before the blue-band cut, these are −2.92 and +0.20.
+**Comparison with 1995.** The script prints the 1995 values next to its own. For all objects, the Hubble slope is −2.99 mag/dex with R² = 0.79 (1995: −3.0, R² = 0.81), and the de Sitter slope is +0.14 mag/dex with R² = 0.008 (1995: +0.076, R² = 0.0026). Before the blue-band cut, these are −2.92 and +0.20.
 
-**Flux-limited core.** The 14,750 galaxies with Zwicky magnitudes (source codes 1 and H), the flux-limited CfA survey proper, have median z = 0.021. On their own they give an anti-de Sitter slope of −1.76 mag/dex (R² = 0.29) and a Hubble slope of −4.32 (R² = 0.71). Within a flux-limited sample of this narrow redshift range, intrinsically brighter objects are seen to larger distances (Malmquist bias), which steepens both slopes. The script prints these values for reference.
+**Flux-limited core.** The 14,750 galaxies with Zwicky magnitudes (source codes 1 and H), the flux-limited CfA survey proper, have median z = 0.021. On their own they give a de Sitter slope of −1.76 mag/dex (R² = 0.29) and a Hubble slope of −4.32 (R² = 0.71). Within a flux-limited sample of this narrow redshift range, intrinsically brighter objects are seen to larger distances (Malmquist bias), which steepens both slopes. The script prints these values for reference.
 
 ## 2. SDSS-I/II (2000–2008)
 
@@ -91,7 +91,7 @@ The query returns 6,015,420 objects. Galaxies must also pass the quality cuts be
 ## 4. Magnitudes and statistics
 
 - m = m_r = 22.5 − 2.5 log₁₀(flux_r) for DESI (flux in nanomaggies, AB), m = modelMag_r for SDSS, and the catalog magnitudes for CfA (section 1). No extinction or K-correction is applied.
-- Anti-de Sitter: M = m − 2.5 log₁₀[1 − (1+z)⁻²] + C_AdS, with C_AdS = −55.3
+- de Sitter: M = m − 2.5 log₁₀[1 − (1+z)⁻²] + C_dS, with C_dS = −55.3
 - Hubble (q₀ = 1): M = m − 5 log₁₀ z + C_H, with C_H = −43.0
 - The constants were set for r-band magnitudes. A different band, or different constants, shifts every M by the same amount and does not change the widths or slopes.
 - Δ68 = P84 − P16, Δ95 = P97.5 − P2.5, Δ99.7 = P99.85 − P0.15. These use `numpy.percentile` with linear interpolation, over all objects pooled.
@@ -101,13 +101,13 @@ The query returns 6,015,420 objects. Galaxies must also pass the quality cuts be
 
 | Sample | Relation | Δ68 | Δ95 | Δ99.7 [mag] | Slope [mag/dex] |
 |---|---|---|---|---|---|
-| CfA + Hewitt & Burbidge | anti-de Sitter | 2.3 | 5.2 | 8.8 | +0.1 |
+| CfA + Hewitt & Burbidge | de Sitter | 2.3 | 5.2 | 8.8 | +0.1 |
 | CfA + Hewitt & Burbidge | Hubble | 5.8 | 11.1 | 17.3 | −3.0 |
 | CfA + Hewitt & Burbidge | apparent m (baseline) | 4.3 | 8.0 | 12.4 | +2.0 |
-| SDSS-I/II | anti-de Sitter | 1.4 | 3.3 | 7.6 | +0.1 |
+| SDSS-I/II | de Sitter | 1.4 | 3.3 | 7.6 | +0.1 |
 | SDSS-I/II | Hubble | 2.2 | 6.7 | 12.5 | −3.1 |
 | SDSS-I/II | apparent m_r (baseline) | 2.1 | 4.7 | 8.2 | +1.9 |
-| DESI DR1 bright | anti-de Sitter | 1.4 | 3.1 | 6.1 | −0.4 |
+| DESI DR1 bright | de Sitter | 1.4 | 3.1 | 6.1 | −0.4 |
 | DESI DR1 bright | Hubble | 2.0 | 4.5 | 10.8 | −3.4 |
 | DESI DR1 bright | apparent m_r (baseline) | 1.6 | 3.5 | 5.7 | +1.6 |
 
@@ -126,11 +126,11 @@ All three selection scripts print the statistics before and after the cuts; the 
 
 | Before quality cuts | Relation | Δ68 | Δ95 | Δ99.7 [mag] | Slope [mag/dex] |
 |---|---|---|---|---|---|
-| CfA + Hewitt & Burbidge (34,183) | anti-de Sitter | 2.3 | 5.4 | 8.9 | +0.2 |
+| CfA + Hewitt & Burbidge (34,183) | de Sitter | 2.3 | 5.4 | 8.9 | +0.2 |
 | CfA + Hewitt & Burbidge | Hubble | 5.3 | 10.9 | 16.9 | −2.9 |
-| SDSS-I/II (921,571) | anti-de Sitter | 1.4 | 3.3 | 8.5 | +0.1 |
+| SDSS-I/II (921,571) | de Sitter | 1.4 | 3.3 | 8.5 | +0.1 |
 | SDSS-I/II | Hubble | 2.3 | 6.8 | 13.0 | −3.1 |
-| DESI DR1 bright (6,015,420) | anti-de Sitter | 1.4 | 3.2 | 6.3 | −0.5 |
+| DESI DR1 bright (6,015,420) | de Sitter | 1.4 | 3.2 | 6.3 | −0.5 |
 | DESI DR1 bright | Hubble | 2.0 | 4.5 | 11.5 | −3.5 |
 
 ## Citing this code

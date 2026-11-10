@@ -24,7 +24,7 @@ Quality cut: blue-band galaxy magnitudes only. The CfA magnitude column is a B m
   Statistics are printed before and after the cut; the sample written to cfa_hb_sample.csv.gz
   (and used for the figures) is the one after the cut.
 Quantities and statistics as in desi_bright_selection.py, with m = the catalog magnitude, plus the
-  squared correlation coefficient R^2 reported in the 1995 paper. The constants C_AdS and C_H were
+  squared correlation coefficient R^2 reported in the 1995 paper. The constants C_dS and C_H were
   set for r-band magnitudes; a different band only shifts every M by a constant and does not
   change the widths or slopes.
 
@@ -51,9 +51,9 @@ HB = [("name", 0, 8), ("RAh", 9, 11), ("RAm", 12, 14), ("RAs", 15, 20), ("DEsign
 TEXT = ("name", "DEsign", "mag_src", "BLLac")
 
 # Miller & Miller (1995), Table I and figure 2: (slope, R^2)
-REF = {"galaxies": {"Hubble": (-3.0, 0.60), "anti-de Sitter": (-0.27, 0.011)},
-       "quasars":  {"Hubble": (-3.6, 0.52), "anti-de Sitter": (0.33, 0.0089)},
-       "all":      {"Hubble": (-3.0, 0.81), "anti-de Sitter": (0.076, 0.0026), "apparent m": (2.0, 0.65)}}
+REF = {"galaxies": {"Hubble": (-3.0, 0.60), "de Sitter": (-0.27, 0.011)},
+       "quasars":  {"Hubble": (-3.6, 0.52), "de Sitter": (0.33, 0.0089)},
+       "all":      {"Hubble": (-3.0, 0.81), "de Sitter": (0.076, 0.0026), "apparent m": (2.0, 0.65)}}
 
 def get(path):
     fn = os.path.basename(path)
@@ -86,7 +86,7 @@ def report(k, title, ref=True):
         if len(d) == 0:
             continue
         z = d.z.to_numpy(float); lz = np.log10(z); m = d.mag.to_numpy(float)
-        M = {"anti-de Sitter": m - 2.5*np.log10(1 - (1 + z)**-2) - 55.3,
+        M = {"de Sitter": m - 2.5*np.log10(1 - (1 + z)**-2) - 55.3,
              "Hubble": m - 5*lz - 43.0, "apparent m": m}
         print(f"  {g}: N = {len(d):,}")
         for name, v in M.items():
