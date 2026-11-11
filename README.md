@@ -12,6 +12,7 @@ comparison figures in T. Miller, *Radius, redshift, rotation, and radiation: the
 | `sdss_legacy_selection.py` | SDSS-I/II sample and its statistics | ~10 min (includes a 1.7 GB download) |
 | `desi_bright_selection.py` | DESI DR1 bright-time sample and its statistics | ~10 min (`--test`: 1% slice) |
 | `make_figure.py` | the main figure (absolute magnitude; rows CfA, SDSS and DESI, columns de Sitter and Hubble) and the appendix figure (apparent magnitude; CfA, SDSS and DESI); PDF and PNG | ~1 min |
+| `make_density_map.py` | the density-map figure (distribution of absolute magnitude at each redshift, de Sitter and Hubble relative to their overall medians; CfA, SDSS and DESI); PDF and PNG | ~1 min |
 
 ## Quick start
 
@@ -21,6 +22,7 @@ python cfa_hb_selection.py             # writes cfa_hb_sample.csv.gz
 python sdss_legacy_selection.py        # writes sdss_legacy_sample.csv.gz
 python desi_bright_selection.py        # writes desi_dr1_main_bright_sample.csv.gz
 python make_figure.py                  # writes absolute_magnitude_cfa_sdss_desi and apparent_magnitude_cfa_sdss_desi (.png/.pdf)
+python make_density_map.py             # writes density_map_cfa_sdss_desi (.png/.pdf)
 ```
 
 All data are public, and no accounts are needed. Each script prints the sample size and the statistics, so they can be checked against the tables below. Tested with Python 3.11.17, numpy 2.4.6, pandas 2.3.3, matplotlib 3.11.2, astropy 8.0.2, scipy 1.17.1 and requests 2.34.2.
@@ -97,7 +99,8 @@ The query returns 6,015,420 objects. Galaxies must also pass the quality cuts be
 - Δ68 = P84 − P16, Δ95 = P97.5 − P2.5, Δ99.7 = P99.85 − P0.15. These use `numpy.percentile` with linear interpolation, over all objects pooled.
 - The slope is an unweighted least-squares fit of M on log₁₀ z, with no clipping.
 - Running medians in the figures use bins of 0.1 in log₁₀ z and need at least 100 galaxies or 100 quasars per bin.
-- Figure shading is the fraction of each sample per cell, on one logarithmic scale for all panels; cells holding a single object are a fixed light gray. Magnitudes increase upward in all panels.
+- In the main and appendix figures, shading is the fraction of each sample per cell, on one logarithmic scale for all panels; cells holding a single object are a fixed light gray. Magnitudes increase upward in all panels.
+- The density map plots each relation relative to its overall median (all objects). The density of M in each column of 0.01 in log₁₀ z is scaled to its maximum. Densities and percentiles use a Gaussian window in log₁₀ z with standard deviation 0.02, widened in steps up to 0.15 until it holds at least 400 objects (weighted by the window), and a Gaussian of 0.15 mag in M, widened by (2000/N)^¼ where the weighted count N is below 2000. Only for CfA above log₁₀ z = 0.68 does the widest window hold fewer than 400 objects (at least 186). The two colors are combined into opaque colors, so the PDF contains no transparency.
 
 | Sample | Relation | Δ68 | Δ95 | Δ99.7 [mag] | Slope [mag/dex] |
 |---|---|---|---|---|---|
