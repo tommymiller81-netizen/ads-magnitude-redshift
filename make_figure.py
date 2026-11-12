@@ -1,11 +1,13 @@
 """
-Reproduce the figures of the paper.
+Supplementary figures: the joint magnitude-redshift distributions shown in earlier versions of the
+paper (the paper's figures are now made by make_density_map.py, which imports the loaders,
+constants and house style defined here).
 
-1. Main figure: absolute magnitude against log10 z. Rows: (a) CfA + Hewitt & Burbidge (to 1995),
+1. Absolute-magnitude figure: absolute magnitude against log10 z. Rows: (a) CfA + Hewitt & Burbidge (to 1995),
    (b) SDSS-I/II (2000-2008), (c) DESI DR1 bright time (2021-2022).
    Columns: (1) de Sitter, (2) Hubble (q0 = 1).
    Output: absolute_magnitude_cfa_sdss_desi.pdf/.png
-2. Appendix figure: apparent magnitude m against log10 z, (a) CfA, (b) SDSS, (c) DESI.
+2. Apparent-magnitude figure: apparent magnitude m against log10 z, (a) CfA, (b) SDSS, (c) DESI.
    Output: apparent_magnitude_cfa_sdss_desi.pdf/.png
 Inputs: cfa_hb_sample.csv.gz (cfa_hb_selection.py), sdss_legacy_sample.csv.gz
         (sdss_legacy_selection.py) and desi_dr1_main_bright_sample.csv.gz (desi_bright_selection.py).

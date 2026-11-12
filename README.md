@@ -11,8 +11,8 @@ comparison figures in T. Miller, *Radius, redshift, rotation, and radiation: the
 | `cfa_hb_selection.py` | CfA + Hewitt & Burbidge sample and its statistics, with the values of Miller & Miller (1995) for comparison | <1 min (includes a 7 MB download) |
 | `sdss_legacy_selection.py` | SDSS-I/II sample and its statistics | ~10 min (includes a 1.7 GB download) |
 | `desi_bright_selection.py` | DESI DR1 bright-time sample and its statistics | ~10 min (`--test`: 1% slice) |
-| `make_figure.py` | the main figure (absolute magnitude; rows CfA, SDSS and DESI, columns de Sitter and Hubble) and the appendix figure (apparent magnitude; CfA, SDSS and DESI); PDF and PNG | ~1 min |
-| `make_density_map.py` | the density-map figure (distribution of absolute magnitude at each redshift, de Sitter and Hubble relative to their overall medians; CfA, SDSS and DESI); PDF and PNG | ~1 min |
+| `make_density_map.py` | the paper's figures: the distribution of absolute magnitude at each redshift (de Sitter and Hubble, each relative to its overall median) and, for the appendix, of apparent magnitude; CfA, SDSS and DESI; PDF and PNG. It also prints the paper's table (medians, spans of the running medians, slopes) and the q₀ check | ~1 min |
+| `make_figure.py` | supplementary figures from earlier versions: joint distributions of absolute magnitude (with galaxy and quasar running medians) and of apparent magnitude; PDF and PNG | ~1 min |
 
 ## Quick start
 
@@ -21,8 +21,8 @@ pip install -r requirements.txt
 python cfa_hb_selection.py             # writes cfa_hb_sample.csv.gz
 python sdss_legacy_selection.py        # writes sdss_legacy_sample.csv.gz
 python desi_bright_selection.py        # writes desi_dr1_main_bright_sample.csv.gz
-python make_figure.py                  # writes absolute_magnitude_cfa_sdss_desi and apparent_magnitude_cfa_sdss_desi (.png/.pdf)
-python make_density_map.py             # writes density_map_cfa_sdss_desi (.png/.pdf)
+python make_density_map.py             # writes density_map_cfa_sdss_desi and apparent_density_map_cfa_sdss_desi (.png/.pdf); prints the table
+python make_figure.py                  # optional: supplementary figures absolute_magnitude_cfa_sdss_desi and apparent_magnitude_cfa_sdss_desi
 ```
 
 All data are public, and no accounts are needed. Each script prints the sample size and the statistics, so they can be checked against the tables below. Tested with Python 3.11.17, numpy 2.4.6, pandas 2.3.3, matplotlib 3.11.2, astropy 8.0.2, scipy 1.17.1 and requests 2.34.2.
@@ -95,12 +95,31 @@ The query returns 6,015,420 objects. Galaxies must also pass the quality cuts be
 - m = m_r = 22.5 − 2.5 log₁₀(flux_r) for DESI (flux in nanomaggies, AB), m = modelMag_r for SDSS, and the catalog magnitudes for CfA (section 1). No extinction or K-correction is applied.
 - de Sitter: M = m − 2.5 log₁₀[1 − (1+z)⁻²] + C_dS, with C_dS = −55.3
 - Hubble (q₀ = 1): M = m − 5 log₁₀ z + C_H, with C_H = −43.0
-- The constants were set for r-band magnitudes. A different band, or different constants, shifts every M by the same amount and does not change the widths or slopes.
+- The constants were set for r-band magnitudes. A different band, or different constants, shifts every M by the same amount and does not change the spans, widths or slopes.
 - Δ68 = P84 − P16, Δ95 = P97.5 − P2.5, Δ99.7 = P99.85 − P0.15. These use `numpy.percentile` with linear interpolation, over all objects pooled.
 - The slope is an unweighted least-squares fit of M on log₁₀ z, with no clipping.
-- Running medians in the figures use bins of 0.1 in log₁₀ z and need at least 100 galaxies or 100 quasars per bin.
-- In the main and appendix figures, shading is the fraction of each sample per cell, on one logarithmic scale for all panels; cells holding a single object are a fixed light gray. Magnitudes increase upward in all panels.
-- The density map plots each relation relative to its overall median (all objects). The density of M in each column of 0.01 in log₁₀ z is scaled to its maximum. Densities and percentiles use a Gaussian window in log₁₀ z with standard deviation 0.02, widened in steps up to 0.15 until it holds at least 400 objects (weighted by the window), and a Gaussian of 0.15 mag in M, widened by (2000/N)^¼ where the weighted count N is below 2000. Only for CfA above log₁₀ z = 0.68 does the widest window hold fewer than 400 objects (at least 186). The two colors are combined into opaque colors, so the PDF contains no transparency.
+- The span is the difference between the largest and smallest values of the running median over −2.6 < log₁₀ z < 0.75; the overall median is taken over all objects of a sample.
+- In the supplementary figures (`make_figure.py`), running medians use bins of 0.1 in log₁₀ z and need at least 100 galaxies or 100 quasars per bin.
+- In the supplementary figures, shading is the fraction of each sample per cell, on one logarithmic scale for all panels; cells holding a single object are a fixed light gray. Magnitudes increase upward in all panels.
+- The density maps plot each relation relative to its overall median (all objects), and m on its own scale. The density of M (or m) in each column of 0.01 in log₁₀ z is scaled to its maximum. Densities and percentiles use a Gaussian window in log₁₀ z with standard deviation 0.02, widened in steps up to 0.15 until it holds at least 400 objects (weighted by the window), and a Gaussian of 0.15 mag in magnitude, widened by (2000/N)^¼ where the weighted count N is below 2000. Only for CfA above log₁₀ z = 0.68 does the widest window hold fewer than 400 objects (at least 186). A short tick marks the log₁₀ z above which quasars are the majority (quasar fraction in bins of 0.02, smoothed with a Gaussian of 0.05): −0.57, −0.21 and −0.05 for CfA, SDSS and DESI. The two colors are combined into opaque colors, so the PDFs contain no transparency.
+
+Statistics in the paper's table, printed by `make_density_map.py`:
+
+| Sample | Quantity | Median [mag] | Span [mag] | Slope [mag/dex] |
+|---|---|---|---|---|
+| CfA + Hewitt & Burbidge | de Sitter M | −36.6 | 2.5 | +0.1 |
+| CfA + Hewitt & Burbidge | Hubble M (q₀ = 1) | −19.9 | 10.4 | −3.0 |
+| CfA + Hewitt & Burbidge | apparent m | 15.6 | 5.5 | +2.0 |
+| SDSS-I/II | de Sitter M | −36.1 | 2.9 | +0.1 |
+| SDSS-I/II | Hubble M (q₀ = 1) | −21.2 | 11.9 | −3.1 |
+| SDSS-I/II | apparent m_r | 17.5 | 3.7 | +1.9 |
+| DESI DR1 bright | de Sitter M | −34.8 | 4.0 | −0.4 |
+| DESI DR1 bright | Hubble M (q₀ = 1) | −20.6 | 13.9 | −3.4 |
+| DESI DR1 bright | apparent m_r | 19.3 | 2.2 | +1.6 |
+
+All three samples are selected by apparent magnitude, so the running median of m provides a reference for those of M. For DESI, the script also prints the Hubble span and slope for q₀ = 0.5 (Mattig luminosity distance; 14.6 mag, −3.6) and flat ΛCDM with Ωm = 0.3 (15.5 mag, −3.9), against 13.9 mag and −3.4 for q₀ = 1; of the cases considered, q₀ = 1 gives the smallest span and the shallowest slope.
+
+Supplementary statistics: full widths of the pooled distributions, printed by the selection scripts.
 
 | Sample | Relation | Δ68 | Δ95 | Δ99.7 [mag] | Slope [mag/dex] |
 |---|---|---|---|---|---|
@@ -122,7 +141,7 @@ q₀ = 1 gives the narrowest.
 ### Quality cuts
 
 - **CfA: blue-band galaxy magnitudes** (section 1). This removes 3,054 galaxies.
-- **SDSS: positive r-band flux.** SDSS magnitudes are asinh magnitudes (Lupton, Gunn & Szalay 1999), which stay finite at zero flux: in r, zero flux gives `modelMag_r` = 24.80 and negative flux gives fainter values. Requiring `modelMag_r` < 24.80 matches the DESI condition `flux_r > 0` and removes 504 objects (485 galaxies, 19 quasars), which would otherwise form faint diagonal sequences in the SDSS absolute-magnitude panels.
+- **SDSS: positive r-band flux.** SDSS magnitudes are asinh magnitudes (Lupton, Gunn & Szalay 1999), which stay finite at zero flux: in r, zero flux gives `modelMag_r` = 24.80 and negative flux gives fainter values. Requiring `modelMag_r` < 24.80 matches the DESI condition `flux_r > 0` and removes 504 objects (485 galaxies, 19 quasars), which would otherwise form faint diagonal sequences in the magnitude–redshift plane.
 - **DESI galaxies: redshift quality.** Galaxies must satisfy DESI's redshift-success criterion for bright-time galaxies, `ZWARN = 0` and `DELTACHI2 > 40` (DESI Collaboration 2025, JCAP 07, 017), and z < 1.5 (Ratajczak et al. 2026, AJ 171, 71), which removes a pile-up below the z = 1.7 limit of the Redrock galaxy templates. Quasars are not cut. This removes 56,535 galaxies (0.94%): 51,735 with `DELTACHI2` ≤ 40 and 4,800 more at z ≥ 1.5.
 
 All three selection scripts print the statistics before and after the cuts; the samples they write, and the figures, use the samples after the cuts.
