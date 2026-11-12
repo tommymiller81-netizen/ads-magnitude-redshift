@@ -118,14 +118,14 @@ def qso_majority(lz, isq):
     return float(c[k]) if k < len(c) else None
 
 
-def mark_quasars(ax, x50, where):
+def mark_quasars(ax, x50, where, fs=7, gap=0.03):
     """Short tick at x50 with 'galaxies' to its left and 'quasars' to its right, at the top or bottom."""
     tr = ax.get_xaxis_transform()
     y0, y1, yt = (0.88, 1.0, 0.94) if where == "top" else (0.0, 0.12, 0.06)
     ax.plot([x50, x50], [y0, y1], transform=tr, color="0.3", lw=0.7, zorder=6, solid_capstyle="butt")
-    kw = dict(transform=tr, va="center", fontsize=7, color="0.3", zorder=6)
-    ax.text(x50 - 0.03, yt, "galaxies", ha="right", **kw)
-    ax.text(x50 + 0.03, yt, "quasars", ha="left", **kw)
+    kw = dict(transform=tr, va="center", fontsize=fs, color="0.3", zorder=6)
+    ax.text(x50 - gap, yt, "galaxies", ha="right", **kw)
+    ax.text(x50 + gap, yt, "quasars", ha="left", **kw)
 
 
 def header(ax, letter, name, years, parts):
@@ -177,7 +177,8 @@ def main(cfa="cfa_hb_sample.csv.gz", sdss="sdss_legacy_sample.csv.gz", desi="des
                ("DESI", "2021\u20132022", load_desi(desi))]
     yc = 0.5*(YB[1:] + YB[:-1])
     fig1, axes1 = plt.subplots(3, 1, figsize=(5.8, 6.9), sharex=True, gridspec_kw=dict(hspace=0.62))
-    fig2, axes2 = plt.subplots(1, 3, figsize=(5.8, 2.3), sharey=True, gridspec_kw=dict(wspace=0.08))
+    fig2, axes2 = plt.subplots(1, 3, figsize=(5.8, 2.3), sharey=True, gridspec_kw=dict(wspace=0.06))
+    fig2.subplots_adjust(left=0.085, right=0.995)
     stats = []
     for ax1, ax2, (name, years, (z, m, isq)), letter in zip(axes1, axes2, surveys, "abc"):
         lz = np.log10(z); x50 = qso_majority(lz, isq)
@@ -220,7 +221,7 @@ def main(cfa="cfa_hb_sample.csv.gz", sdss="sdss_legacy_sample.csv.gz", desi="des
         ax2.text(XLIM[0] + 0.1, max(LIMITS[name]) + 0.35, ", ".join(f"{v:g}" for v in LIMITS[name]),
                  fontsize=7, color="0.05", ha="left", va="bottom", zorder=7)
         if x50 is not None:
-            ax2.plot([x50, x50], [0.0, 0.09], transform=ax2.get_xaxis_transform(), color="0.3", lw=0.8, zorder=6)
+            mark_quasars(ax2, x50, "bottom", fs=6.5, gap=0.025)
         ax2.set_xlim(*XLIM); ax2.set_ylim(*YLIM_M)
         ax2.xaxis.set_major_locator(MultipleLocator(1.0)); ax2.xaxis.set_minor_locator(MultipleLocator(0.5))
         ax2.xaxis.set_major_formatter(FuncFormatter(lambda v, _: neg(f"{v:.0f}")))
