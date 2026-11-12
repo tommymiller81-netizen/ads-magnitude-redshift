@@ -12,7 +12,7 @@ comparison figures in T. Miller, *Radius, redshift, rotation, and radiation: the
 | `sdss_legacy_selection.py` | SDSS-I/II sample and its statistics | ~10 min (includes a 1.7 GB download) |
 | `desi_bright_selection.py` | DESI DR1 bright-time sample and its statistics | ~10 min (`--test`: 1% slice) |
 | `make_density_map.py` | the paper's figures: the distribution of absolute magnitude at each redshift (de Sitter and Hubble, each relative to its overall median) and, for the appendix, of apparent magnitude; CfA, SDSS and DESI; PDF and PNG. It also prints the paper's table (medians, spans of the running medians, slopes) and the q₀ check | ~1 min |
-| `make_cutoff_figures.py` | the redshift-cutoff figure (predicted dN/dz for a uniform population in the static de Sitter metric, normalized to unit area) and, as a supplement to the table in appendix A, volume, surface area and circumference against each radial coordinate; PDF and PNG; no data needed | seconds |
+| `make_cutoff_figures.py` | the redshift-cutoff figure (predicted dN/dz for a uniform population in the static de Sitter metric, normalized to unit area) and the appendix A figure of volume, surface area and circumference against each radial coordinate; PDF and PNG; no data needed | seconds |
 | `make_figure.py` | supplementary figures from earlier versions: joint distributions of absolute magnitude (with galaxy and quasar running medians) and of apparent magnitude; PDF and PNG | ~1 min |
 
 ## Quick start
