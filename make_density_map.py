@@ -6,7 +6,12 @@ Density-map figures of the paper, one panel per sample: (a) CfA + Hewitt & Burbi
    the de Sitter and Hubble (q0 = 1) relations, each plotted relative to its overall median (all
    objects of the sample), so both overall medians lie on the dotted zero line. Green is de Sitter,
    reddish purple Hubble, gray where both are dense.
-2. apparent_density_map_cfa_sdss_desi.pdf/.png (appendix): the same for the apparent magnitude m.
+2. apparent_density_map_cfa_sdss_desi.pdf/.png (appendix): the same for the apparent magnitude m, in one
+   compact row, with dash-dot lines at the faint limits of the galaxy target selections: m = 15.7 for the
+   Zwicky catalog (most CfA galaxy magnitudes), r = 17.77 for the SDSS main galaxy sample (Strauss et al.
+   2002) and r = 19.5 and 20.175 for the DESI Bright Galaxy Survey, bright and faint (Hahn et al. 2023).
+   The SDSS and DESI limits apply to extinction-corrected magnitudes (Petrosian for SDSS), so the observed
+   edges lie about 0.1 mag fainter.
 
 The script also prints the statistics of the paper's table: for M (de Sitter, Hubble) and m, the
 overall median, the range spanned by the running median over the plotted range, and the unweighted
@@ -44,7 +49,9 @@ COL = {"ds": "#009E73", "h": "#CC79A7", "m": "#5f5f5f"}   # Okabe-Ito bluish gre
 EDGE = {"ds": "#00664a", "h": "#9b4a7e", "m": "#1a1a1a"}  # darker shades of the same hues, for lines and labels
 INK = 0.9                                    # color depth at the maximum of a column
 YLIM = (-10.0, 12.0)                         # figure 1: M - median(M) [mag]; magnitudes increase upward
-YLIM_M = (10.0, 25.0)                        # figure 2: m [mag]
+YLIM_M = (10.0, 23.0)                        # figure 2: m [mag]
+LIMITS = {"CfA": (15.7,), "SDSS": (17.77,), "DESI": (19.5, 20.175)}   # galaxy target-selection limits [mag]
+LIMIT_LS = (0, (5, 1.5, 1, 1.5))               # dash-dot
 XB = np.arange(-3.0, 1.0 + 1e-9, 0.01)       # log10 z column edges, wider than XLIM for the edge windows
 YB = np.arange(-30.0, 30.0 + 1e-9, 0.05)     # magnitude bin edges [mag], relative to the overall median
 SIGS = (0.02, 0.03, 0.04, 0.05, 0.06, 0.08, 0.10, 0.125, 0.15)   # window widths tried, in log10 z
@@ -169,8 +176,8 @@ def main(cfa="cfa_hb_sample.csv.gz", sdss="sdss_legacy_sample.csv.gz", desi="des
     surveys = [("CfA", "to 1995", load_cfa_hb(cfa)), ("SDSS", "2000\u20132008", load_sdss(sdss)),
                ("DESI", "2021\u20132022", load_desi(desi))]
     yc = 0.5*(YB[1:] + YB[:-1])
-    kw = dict(figsize=(5.8, 6.9), sharex=True, gridspec_kw=dict(hspace=0.62))
-    fig1, axes1 = plt.subplots(3, 1, **kw); fig2, axes2 = plt.subplots(3, 1, **kw)
+    fig1, axes1 = plt.subplots(3, 1, figsize=(5.8, 6.9), sharex=True, gridspec_kw=dict(hspace=0.62))
+    fig2, axes2 = plt.subplots(1, 3, figsize=(5.8, 2.3), sharey=True, gridspec_kw=dict(wspace=0.08))
     stats = []
     for ax1, ax2, (name, years, (z, m, isq)), letter in zip(axes1, axes2, surveys, "abc"):
         lz = np.log10(z); x50 = qso_majority(lz, isq)
@@ -201,19 +208,28 @@ def main(cfa="cfa_hb_sample.csv.gz", sdss="sdss_legacy_sample.csv.gz", desi="des
                                           (", ", "0.35"), (f"Hubble {span['h']:.1f} mag", EDGE["h"])])
         if x50 is not None:
             mark_quasars(ax1, x50, "top")
-        # figure 2: apparent magnitude
+        # figure 2: apparent magnitude, compact row
         rv2 = (yc + med["m"] >= YLIM_M[0] - 1) & (yc + med["m"] <= YLIM_M[1] + 1)
         image(ax2, xc[cv], blend1(maps["m"][1][cv][:, rv2], COL["m"]), yc, rv2, yoff=med["m"])
         qq = maps["m"][2]
-        ax2.plot(xc[cv], qq[0.5][cv] + med["m"], color=EDGE["m"], lw=1.3, zorder=5)
+        ax2.plot(xc[cv], qq[0.5][cv] + med["m"], color=EDGE["m"], lw=1.2, zorder=5)
         for p in (0.16, 0.84):
             ax2.plot(xc[cv], qq[p][cv] + med["m"], color=EDGE["m"], lw=0.55, ls=(0, (3, 1.5)), zorder=5)
-        frame(ax2, lz, YLIM_M, MultipleLocator(2), lambda v, _: f"{v:.0f}", r"apparent magnitude $m$")
-        header(ax2, letter, name, years, [("median spans ", "0.35"), (f"{span['m']:.1f} mag", "0.15")])
+        for lim in LIMITS[name]:
+            ax2.axhline(lim, color="0.05", lw=0.75, ls=LIMIT_LS, zorder=6)
+        ax2.text(XLIM[0] + 0.1, max(LIMITS[name]) + 0.35, ", ".join(f"{v:g}" for v in LIMITS[name]),
+                 fontsize=7, color="0.05", ha="left", va="bottom", zorder=7)
         if x50 is not None:
-            mark_quasars(ax2, x50, "bottom")
-    for axes in (axes1, axes2):
-        axes[-1].set_xlabel(r"$\log_{10} z$")
+            ax2.plot([x50, x50], [0.0, 0.09], transform=ax2.get_xaxis_transform(), color="0.3", lw=0.8, zorder=6)
+        ax2.set_xlim(*XLIM); ax2.set_ylim(*YLIM_M)
+        ax2.xaxis.set_major_locator(MultipleLocator(1.0)); ax2.xaxis.set_minor_locator(MultipleLocator(0.5))
+        ax2.xaxis.set_major_formatter(FuncFormatter(lambda v, _: neg(f"{v:.0f}")))
+        ax2.yaxis.set_major_locator(MultipleLocator(2)); ax2.yaxis.set_minor_locator(MultipleLocator(1))
+        ax2.set_title(rf"$\mathbf{{{letter}}}\enspace\mathbf{{{name}}}$ ({years})", loc="left", fontsize=8)
+        ax2.set_xlabel(r"$\log_{10} z$")
+        if letter == "a":
+            ax2.set_ylabel(r"apparent magnitude $m$")
+    axes1[-1].set_xlabel(r"$\log_{10} z$")
     sw = {k: tuple(blend(np.array([[a]]), np.array([[b]]))[0, 0]) for k, (a, b) in
           {"ds": (1.0, 0.0), "h": (0.0, 1.0), "both": (1.0, 1.0)}.items()}
     lines = [Line2D([0], [0], color="0.15", lw=1.3, label="running median"),
@@ -222,9 +238,10 @@ def main(cfa="cfa_hb_sample.csv.gz", sdss="sdss_legacy_sample.csv.gz", desi="des
           (("ds", "de Sitter"), ("h", "Hubble"), ("both", "both"))] + lines + \
          [Line2D([0], [0], color="0.15", lw=0.7, ls=(0, (1, 1.6)), label="overall median")]
     sm = tuple(blend1(np.array([[1.0]]), COL["m"])[0, 0])
-    h2 = [Patch(facecolor=sm, edgecolor=sm, lw=0.0, label="density")] + lines
+    h2 = [Patch(facecolor=sm, edgecolor=sm, lw=0.0, label="density")] + lines + \
+         [Line2D([0], [0], color="0.05", lw=0.75, ls=LIMIT_LS, label="galaxy target-selection limits")]
     axes1[-1].legend(handles=h1, loc="upper center", ncol=3, bbox_to_anchor=(0.5, -0.30), handlelength=1.6, columnspacing=1.4)
-    axes2[-1].legend(handles=h2, loc="upper center", ncol=3, bbox_to_anchor=(0.5, -0.30), handlelength=1.6, columnspacing=1.4)
+    fig2.legend(handles=h2, loc="upper center", ncol=4, bbox_to_anchor=(0.5, -0.06), handlelength=1.8, columnspacing=1.2, fontsize=7)
     save(fig1, "density_map_cfa_sdss_desi"); save(fig2, "apparent_density_map_cfa_sdss_desi")
     names = {"ds": "de Sitter", "h": "Hubble (q0 = 1)", "m": "apparent m"}
     print(f"{'sample':6s} {'quantity':30s} {'N':>9s} {'QSO %':>6s} {'median':>7s} {'span':>5s} {'slope':>6s}  quasar majority above log10 z")
