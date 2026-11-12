@@ -105,7 +105,7 @@ The query returns 6,015,420 objects. Galaxies must also pass the quality cuts be
 - In the supplementary figures, shading is the fraction of each sample per cell, on one logarithmic scale for all panels; cells holding a single object are a fixed light gray. Magnitudes increase upward in all panels.
 - The density maps plot each relation relative to its overall median (all objects), and m on its own scale. The density of M (or m) in each column of 0.01 in log₁₀ z is scaled to its maximum. Densities and percentiles use a Gaussian window in log₁₀ z with standard deviation 0.02, widened in steps up to 0.15 until it holds at least 400 objects (weighted by the window), and a Gaussian of 0.15 mag in magnitude, widened by (2000/N)^¼ where the weighted count N is below 2000. Only for CfA above log₁₀ z = 0.68 does the widest window hold fewer than 400 objects (at least 186). A short tick marks the log₁₀ z above which quasars are the majority (quasar fraction in bins of 0.02, smoothed with a Gaussian of 0.05): −0.57, −0.21 and −0.05 for CfA, SDSS and DESI. The appendix figure (one row of three panels) also marks the faint limits of the galaxy target selections: m = 15.7 for the Zwicky catalog (most CfA galaxy magnitudes), r = 17.77 for the SDSS main galaxy sample (Strauss et al. 2002, AJ 124, 1810) and r = 19.5 and 20.175 for the DESI Bright Galaxy Survey, bright and faint (Hahn et al. 2023, AJ 165, 253). These limits apply to extinction-corrected magnitudes (Petrosian for SDSS), so the observed edges lie about 0.1 mag fainter. The two colors are combined into opaque colors, so the PDFs contain no transparency.
 
-Statistics in the paper's table (plus the de Sitter medians), printed by `make_density_map.py`:
+Statistics printed by `make_density_map.py`:
 
 | Sample | Quantity | Median [mag] | Span [mag] | Slope [mag/dex] |
 |---|---|---|---|---|
@@ -119,7 +119,7 @@ Statistics in the paper's table (plus the de Sitter medians), printed by `make_d
 | DESI DR1 bright | Hubble M (q₀ = 1) | −20.6 | 13.9 | −3.4 |
 | DESI DR1 bright | apparent m_r | 19.3 | 2.2 | +1.6 |
 
-The de Sitter medians assume C_dS = −55.3 (R = 1.17 × 10⁶ Mpc). The paper does not quote them: any de Sitter radius gives the same spans, slopes and figures, with all de Sitter magnitudes shifted by one constant.
+The paper's table gives the spans and slopes only. The medians are printed for reference: they depend on the zero points C_dS = −55.3 (R = 1.17 × 10⁶ Mpc) and C_H = −43.0 (H₀ = 75 km/s/Mpc), which shift every magnitude by one constant and change none of the spans, slopes or figures.
 
 All three samples are selected by apparent magnitude, so the running median of m provides a reference for those of M. For DESI, the script also prints the Hubble span and slope for q₀ = 0.5 (Mattig luminosity distance; 14.6 mag, −3.6) and flat ΛCDM with Ωm = 0.3 (15.5 mag, −3.9), against 13.9 mag and −3.4 for q₀ = 1; of the cases considered, q₀ = 1 gives the smallest span and the shallowest slope.
 
