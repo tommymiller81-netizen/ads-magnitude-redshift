@@ -24,9 +24,8 @@ Quality cut: blue-band galaxy magnitudes only. The CfA magnitude column is a B m
   Statistics are printed before and after the cut; the sample written to cfa_hb_sample.csv.gz
   (and used for the figures) is the one after the cut.
 Quantities and statistics as in desi_bright_selection.py, with m = the catalog magnitude, plus the
-  squared correlation coefficient R^2 reported in the 1995 paper. The constants C_dS and C_H were
-  set for r-band magnitudes; a different band only shifts every M by a constant and does not
-  change the widths or slopes.
+  squared correlation coefficient R^2 reported in the 1995 paper. The constants C_dS and C_H shift
+  every M by the same amount and do not change the widths or slopes.
 
 Usage:  python cfa_hb_selection.py
 Requires: numpy, pandas, requests, scipy.

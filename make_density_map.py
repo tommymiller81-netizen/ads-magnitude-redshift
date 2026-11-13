@@ -24,7 +24,7 @@ standard deviation 0.02, widened in steps up to 0.15 where data are sparse, unti
 at least 400 objects (weighted by the window). In magnitude they use a Gaussian of 0.15 mag, widened
 by (2000/N)^(1/4) where that weighted count N is below 2000. Objects outside the plotted range of
 log10 z enter the windows near its edges. Solid lines are running medians, dashed lines the 16th and
-84th percentiles. N gives the number of objects within +-0.125 of each labeled log10 z. A short tick
+84th percentiles. N gives the number of objects within +-0.125 in log10 z of each tick mark. A short tick
 marks the log10 z above which quasars are the majority (quasar fraction in bins of 0.02 in log10 z,
 smoothed with a Gaussian of 0.05). All colors are opaque (the overlap color is computed), so the PDFs
 contain no transparency; the density images are embedded at 400 dpi, text and lines are vector.

@@ -97,7 +97,7 @@ The query returns 6,015,420 objects. Galaxies must also pass the quality cuts be
 - m = m_r = 22.5 − 2.5 log₁₀(flux_r) for DESI (flux in nanomaggies, AB), m = modelMag_r for SDSS, and the catalog magnitudes for CfA (section 1). No extinction or K-correction is applied.
 - de Sitter: M = m − 2.5 log₁₀[1 − (1+z)⁻²] + C_dS, with C_dS = −55.3
 - Hubble (q₀ = 1): M = m − 5 log₁₀ z + C_H, with C_H = −43.0
-- The constants were set for r-band magnitudes. A different band, or different constants, shifts every M by the same amount and does not change the spans, widths or slopes.
+- Other values of the constants shift every M by the same amount and do not change the spans, widths or slopes.
 - Δ68 = P84 − P16, Δ95 = P97.5 − P2.5, Δ99.7 = P99.85 − P0.15. These use `numpy.percentile` with linear interpolation, over all objects pooled.
 - The slope is an unweighted least-squares fit of M on log₁₀ z, with no clipping.
 - The span is the difference between the largest and smallest values of the running median over −2.6 < log₁₀ z < 0.75; the overall median is taken over all objects of a sample.
